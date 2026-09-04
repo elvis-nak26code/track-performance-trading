@@ -1,0 +1,828 @@
+[
+  {
+    "id": "trd-001",
+    "date": "2026-06-02",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 5331,
+    "exitPrice": 5440,
+    "quantity": 1,
+    "r": 7.2,
+    "pnl": 3134.39
+  },
+  {
+    "id": "trd-002",
+    "date": "2026-06-03",
+    "symbol": "NQ1!",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19663,
+    "exitPrice": 19731,
+    "quantity": 1,
+    "r": 4.9,
+    "pnl": 1788.61
+  },
+  {
+    "id": "trd-003",
+    "date": "2026-06-04",
+    "symbol": "ES",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 5468,
+    "exitPrice": 5450,
+    "quantity": 1,
+    "r": -1.1,
+    "pnl": -441.23
+  },
+  {
+    "id": "trd-004",
+    "date": "2026-06-04",
+    "symbol": "NQ1!",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19732,
+    "exitPrice": 19768,
+    "quantity": 1,
+    "r": 2.1,
+    "pnl": 955.54
+  },
+  {
+    "id": "trd-005",
+    "date": "2026-06-08",
+    "symbol": "MNQ",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19761,
+    "exitPrice": 19861,
+    "quantity": 1,
+    "r": 6.3,
+    "pnl": 2628.12
+  },
+  {
+    "id": "trd-006",
+    "date": "2026-06-09",
+    "symbol": "NQ1!",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19982,
+    "exitPrice": 20026,
+    "quantity": 1,
+    "r": 3.3,
+    "pnl": 1589.45
+  },
+  {
+    "id": "trd-007",
+    "date": "2026-06-10",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 5353,
+    "exitPrice": 5403,
+    "quantity": 2,
+    "r": 2.9,
+    "pnl": 3714.95
+  },
+  {
+    "id": "trd-008",
+    "date": "2026-06-11",
+    "symbol": "ES",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 5429,
+    "exitPrice": 5419,
+    "quantity": 1,
+    "r": -0.9,
+    "pnl": -500.19
+  },
+  {
+    "id": "trd-009",
+    "date": "2026-06-11",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 5444,
+    "exitPrice": 5429,
+    "quantity": 1,
+    "r": -1.1,
+    "pnl": -711.89
+  },
+  {
+    "id": "trd-010",
+    "date": "2026-06-12",
+    "symbol": "MNQ",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19959,
+    "exitPrice": 19935,
+    "quantity": 1,
+    "r": 2.9,
+    "pnl": 1630.15
+  },
+  {
+    "id": "trd-011",
+    "date": "2026-06-12",
+    "symbol": "NQ1!",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19932,
+    "exitPrice": 19926,
+    "quantity": 1,
+    "r": -0.7,
+    "pnl": -249.41
+  },
+  {
+    "id": "trd-012",
+    "date": "2026-06-15",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19712,
+    "exitPrice": 19703,
+    "quantity": 1,
+    "r": -1,
+    "pnl": -419.09
+  },
+  {
+    "id": "trd-013",
+    "date": "2026-06-15",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19600,
+    "exitPrice": 19610,
+    "quantity": 1,
+    "r": -1.1,
+    "pnl": -420.99
+  },
+  {
+    "id": "trd-014",
+    "date": "2026-06-16",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19735,
+    "exitPrice": 19860,
+    "quantity": 1,
+    "r": 7.5,
+    "pnl": 3227.87
+  },
+  {
+    "id": "trd-015",
+    "date": "2026-06-17",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "short",
+    "entryPrice": 19722,
+    "exitPrice": 19730,
+    "quantity": 1,
+    "r": -0.5,
+    "pnl": -231.58
+  },
+  {
+    "id": "trd-016",
+    "date": "2026-06-18",
+    "symbol": "MNQ",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19865,
+    "exitPrice": 19780,
+    "quantity": 1,
+    "r": 4.5,
+    "pnl": 2193.87
+  },
+  {
+    "id": "trd-017",
+    "date": "2026-06-18",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19881,
+    "exitPrice": 20004,
+    "quantity": 1,
+    "r": 6.5,
+    "pnl": 4205.38
+  },
+  {
+    "id": "trd-018",
+    "date": "2026-06-19",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 5561,
+    "exitPrice": 5624,
+    "quantity": 1,
+    "r": 3.7,
+    "pnl": 1852.47
+  },
+  {
+    "id": "trd-019",
+    "date": "2026-06-19",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 5448,
+    "exitPrice": 5428,
+    "quantity": 1,
+    "r": -1,
+    "pnl": -396.24
+  },
+  {
+    "id": "trd-020",
+    "date": "2026-06-22",
+    "symbol": "MNQ",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19984,
+    "exitPrice": 19976,
+    "quantity": 1,
+    "r": -1,
+    "pnl": -405.17
+  },
+  {
+    "id": "trd-021",
+    "date": "2026-06-23",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 5458,
+    "exitPrice": 5527,
+    "quantity": 1,
+    "r": 6.8,
+    "pnl": 3230.94
+  },
+  {
+    "id": "trd-022",
+    "date": "2026-06-24",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19761,
+    "exitPrice": 19749,
+    "quantity": 1,
+    "r": -1,
+    "pnl": -368.18
+  },
+  {
+    "id": "trd-023",
+    "date": "2026-06-25",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19689,
+    "exitPrice": 19658,
+    "quantity": 1,
+    "r": 3.7,
+    "pnl": 2103.62
+  },
+  {
+    "id": "trd-024",
+    "date": "2026-06-26",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19893,
+    "exitPrice": 19882,
+    "quantity": 1,
+    "r": -1,
+    "pnl": -616.06
+  },
+  {
+    "id": "trd-025",
+    "date": "2026-06-29",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19684,
+    "exitPrice": 19674,
+    "quantity": 1,
+    "r": -0.6,
+    "pnl": -383.65
+  },
+  {
+    "id": "trd-026",
+    "date": "2026-07-01",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 5583,
+    "exitPrice": 5627,
+    "quantity": 1,
+    "r": 2.9,
+    "pnl": 1631.77
+  },
+  {
+    "id": "trd-027",
+    "date": "2026-07-02",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19650,
+    "exitPrice": 19716,
+    "quantity": 1,
+    "r": 3.7,
+    "pnl": 1880.29
+  },
+  {
+    "id": "trd-028",
+    "date": "2026-07-03",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "short",
+    "entryPrice": 19969,
+    "exitPrice": 19849,
+    "quantity": 1,
+    "r": 6.3,
+    "pnl": 3837.79
+  },
+  {
+    "id": "trd-029",
+    "date": "2026-07-06",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19620,
+    "exitPrice": 19609,
+    "quantity": 2,
+    "r": -0.9,
+    "pnl": -1069.81
+  },
+  {
+    "id": "trd-030",
+    "date": "2026-07-07",
+    "symbol": "NQ1!",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19724,
+    "exitPrice": 19685,
+    "quantity": 1,
+    "r": 2.7,
+    "pnl": 1119.47
+  },
+  {
+    "id": "trd-031",
+    "date": "2026-07-08",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "short",
+    "entryPrice": 5483,
+    "exitPrice": 5468,
+    "quantity": 1,
+    "r": 1,
+    "pnl": 376.48
+  },
+  {
+    "id": "trd-032",
+    "date": "2026-07-10",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19937,
+    "exitPrice": 19964,
+    "quantity": 1,
+    "r": -1.5,
+    "pnl": -781.55
+  },
+  {
+    "id": "trd-033",
+    "date": "2026-07-13",
+    "symbol": "NQ1!",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19748,
+    "exitPrice": 19688,
+    "quantity": 1,
+    "r": 3.1,
+    "pnl": 1218.33
+  },
+  {
+    "id": "trd-034",
+    "date": "2026-07-14",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "short",
+    "entryPrice": 19623,
+    "exitPrice": 19584,
+    "quantity": 1,
+    "r": 2.8,
+    "pnl": 1423.59
+  },
+  {
+    "id": "trd-035",
+    "date": "2026-07-15",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "short",
+    "entryPrice": 19732,
+    "exitPrice": 19739,
+    "quantity": 1,
+    "r": -0.6,
+    "pnl": -284.26
+  },
+  {
+    "id": "trd-036",
+    "date": "2026-07-17",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19896,
+    "exitPrice": 19943,
+    "quantity": 1,
+    "r": 4.3,
+    "pnl": 1834.59
+  },
+  {
+    "id": "trd-037",
+    "date": "2026-07-20",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 5468,
+    "exitPrice": 5423,
+    "quantity": 1,
+    "r": 2.6,
+    "pnl": 1067.12
+  },
+  {
+    "id": "trd-038",
+    "date": "2026-07-21",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 5414,
+    "exitPrice": 5401,
+    "quantity": 1,
+    "r": 1,
+    "pnl": 445.98
+  },
+  {
+    "id": "trd-039",
+    "date": "2026-07-23",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19880,
+    "exitPrice": 19938,
+    "quantity": 2,
+    "r": 6.4,
+    "pnl": 7547.01
+  },
+  {
+    "id": "trd-040",
+    "date": "2026-07-24",
+    "symbol": "NQ1!",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19947,
+    "exitPrice": 19996,
+    "quantity": 1,
+    "r": 3.9,
+    "pnl": 1563.95
+  },
+  {
+    "id": "trd-041",
+    "date": "2026-07-27",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19779,
+    "exitPrice": 19771,
+    "quantity": 1,
+    "r": -0.9,
+    "pnl": -379.44
+  },
+  {
+    "id": "trd-042",
+    "date": "2026-07-29",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19889,
+    "exitPrice": 19875,
+    "quantity": 2,
+    "r": -1.1,
+    "pnl": -832.01
+  },
+  {
+    "id": "trd-043",
+    "date": "2026-08-03",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "short",
+    "entryPrice": 19718,
+    "exitPrice": 19730,
+    "quantity": 1,
+    "r": -1.5,
+    "pnl": -627.01
+  },
+  {
+    "id": "trd-044",
+    "date": "2026-08-03",
+    "symbol": "MNQ",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19790,
+    "exitPrice": 19798,
+    "quantity": 1,
+    "r": -0.6,
+    "pnl": -311.48
+  },
+  {
+    "id": "trd-045",
+    "date": "2026-08-04",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19882,
+    "exitPrice": 19893,
+    "quantity": 1,
+    "r": 1.1,
+    "pnl": 551.67
+  },
+  {
+    "id": "trd-046",
+    "date": "2026-08-05",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 5370,
+    "exitPrice": 5356,
+    "quantity": 1,
+    "r": -1.2,
+    "pnl": -542.82
+  },
+  {
+    "id": "trd-047",
+    "date": "2026-08-06",
+    "symbol": "NQ1!",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19726,
+    "exitPrice": 19712,
+    "quantity": 2,
+    "r": -0.8,
+    "pnl": -924.97
+  },
+  {
+    "id": "trd-048",
+    "date": "2026-08-11",
+    "symbol": "MNQ",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19900,
+    "exitPrice": 20015,
+    "quantity": 1,
+    "r": 6.8,
+    "pnl": 3593.74
+  },
+  {
+    "id": "trd-049",
+    "date": "2026-08-13",
+    "symbol": "ES",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 5359,
+    "exitPrice": 5398,
+    "quantity": 1,
+    "r": 3.5,
+    "pnl": 1399.64
+  },
+  {
+    "id": "trd-050",
+    "date": "2026-08-13",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 5436,
+    "exitPrice": 5464,
+    "quantity": 1,
+    "r": 1.7,
+    "pnl": 630.97
+  },
+  {
+    "id": "trd-051",
+    "date": "2026-08-18",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "long",
+    "entryPrice": 19982,
+    "exitPrice": 20035,
+    "quantity": 1,
+    "r": 3.8,
+    "pnl": 1496.9
+  },
+  {
+    "id": "trd-052",
+    "date": "2026-08-19",
+    "symbol": "MNQ",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19855,
+    "exitPrice": 19867,
+    "quantity": 1,
+    "r": -1.2,
+    "pnl": -676.76
+  },
+  {
+    "id": "trd-053",
+    "date": "2026-08-20",
+    "symbol": "NQ1!",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19888,
+    "exitPrice": 19958,
+    "quantity": 1,
+    "r": 3.8,
+    "pnl": 2134.5
+  },
+  {
+    "id": "trd-054",
+    "date": "2026-08-21",
+    "symbol": "NQ1!",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19706,
+    "exitPrice": 19730,
+    "quantity": 1,
+    "r": 1.4,
+    "pnl": 768.87
+  },
+  {
+    "id": "trd-055",
+    "date": "2026-08-24",
+    "symbol": "MNQ",
+    "strategies": [
+      "fondamentale",
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19938,
+    "exitPrice": 19961,
+    "quantity": 1,
+    "r": -1.3,
+    "pnl": -663.88
+  },
+  {
+    "id": "trd-056",
+    "date": "2026-08-25",
+    "symbol": "ES",
+    "strategies": [
+      "fondamentale"
+    ],
+    "direction": "short",
+    "entryPrice": 5568,
+    "exitPrice": 5558,
+    "quantity": 1,
+    "r": 1,
+    "pnl": 385.97
+  },
+  {
+    "id": "trd-057",
+    "date": "2026-08-27",
+    "symbol": "MNQ",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "long",
+    "entryPrice": 19717,
+    "exitPrice": 19735,
+    "quantity": 1,
+    "r": 1.9,
+    "pnl": 891.88
+  },
+  {
+    "id": "trd-058",
+    "date": "2026-08-27",
+    "symbol": "MNQ",
+    "strategies": [
+      "price-action"
+    ],
+    "direction": "short",
+    "entryPrice": 19978,
+    "exitPrice": 19990,
+    "quantity": 1,
+    "r": -0.9,
+    "pnl": -550.98
+  }
+]

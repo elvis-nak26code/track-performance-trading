@@ -1,0 +1,56 @@
+[
+  {
+    "id": "jrn-001",
+    "date": "2026-08-28",
+    "instrument": "NQ1!",
+    "mood": "confiant",
+    "text": "Le marché a ouvert avec un gap clair au-dessus de la zone de liquidité de la veille. J'ai attendu le retest avant d'entrer, exactement comme dans mon plan. Pas d'entrée anticipée, pas de FOMO. Sortie partielle au premier objectif puis trailing stop sur le reste. C'est ce genre de journée que je veux répéter : patience avant l'entrée, discipline après.",
+    "screenshots": [],
+    "linkedTradeIds": ["trd-050", "trd-051"]
+  },
+  {
+    "id": "jrn-002",
+    "date": "2026-08-21",
+    "instrument": "NQ1!",
+    "mood": "tilte",
+    "text": "Première perte de la journée sur NQ1! suite à une cassure ratée. Au lieu de m'arrêter, j'ai repris une position quinze minutes après pour 'me refaire'. Résultat : deuxième perte, plus grosse que la première. Je dois appliquer ma règle des deux pertes = pause obligatoire de 30 minutes minimum, sans exception.",
+    "screenshots": [],
+    "linkedTradeIds": []
+  },
+  {
+    "id": "jrn-003",
+    "date": "2026-08-14",
+    "instrument": "ES1!",
+    "mood": "calme",
+    "text": "Range serré toute la matinée sur ES. J'ai décidé de ne pas forcer une entrée et d'attendre l'après-midi. Finalement une seule opportunité claire en price action sur la cassure de range, prise avec un stop serré. Petit gain mais surtout satisfaction d'avoir respecté mon plan de ne pas trader le range.",
+    "screenshots": [],
+    "linkedTradeIds": ["trd-045"]
+  },
+  {
+    "id": "jrn-004",
+    "date": "2026-08-05",
+    "instrument": "XAUUSD",
+    "mood": "avide",
+    "text": "Après trois trades gagnants cette semaine sur l'or, j'ai augmenté ma taille de position sans réduire mon risque en conséquence. La perte du jour n'était pas énorme en R mais l'a été en dollars. Rappel : la taille de position doit rester fonction du risque, jamais de l'ego ou d'une série de gains récents.",
+    "screenshots": [],
+    "linkedTradeIds": []
+  },
+  {
+    "id": "jrn-005",
+    "date": "2026-07-29",
+    "instrument": "MNQ1!",
+    "mood": "craintif",
+    "text": "J'ai vu la configuration se former sur MNQ mais j'ai hésité à entrer par peur d'une fausse cassure comme la semaine dernière. Le mouvement est parti sans moi. Je dois travailler sur la confiance dans mon plan de trading plutôt que sur les résultats des trades précédents, qui n'ont aucune influence sur la probabilité du trade actuel.",
+    "screenshots": [],
+    "linkedTradeIds": []
+  },
+  {
+    "id": "jrn-006",
+    "date": "2026-07-20",
+    "instrument": "WTI",
+    "mood": "confiant",
+    "text": "Bilan hebdomadaire sur le pétrole : bonne lecture du rapport EIA et du contexte géopolitique, mes entrées en combinant analyse fondamentale et confirmation en price action fonctionnent bien sur cet actif. Je note que mes trades short sont statistiquement moins bons que mes trades long en ce moment ; je vais réduire la taille sur les shorts jusqu'à identifier la cause (biais directionnel du marché ou exécution moins propre).",
+    "screenshots": [],
+    "linkedTradeIds": []
+  }
+]

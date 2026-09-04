@@ -1,0 +1,72 @@
+/* Feuille de style globale : directives Tailwind + variables CSS de thème
+   (sombre par défaut, clair en option) + styles d'impression pour l'export
+   PDF du track record via window.print(). */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Thème sombre (par défaut) — "terminal de trading" */
+:root {
+  --color-bg: #0a0c0a;
+  --color-bg-alt: #0d1117;
+  --color-card: #141714;
+  --color-card-border: #252925;
+  --color-accent: #2ed573;
+  --color-accent-soft: #1DE9B6;
+  --color-danger: #ff5252;
+  --color-text-primary: #ebedeb;
+  --color-text-secondary: #8c918c;
+}
+
+/* Thème clair — mêmes rôles de couleur, palette inversée et adoucie */
+:root.light {
+  --color-bg: #f5f6f4;
+  --color-bg-alt: #eef0ed;
+  --color-card: #ffffff;
+  --color-card-border: #e2e5e0;
+  --color-accent: #1a9c56;
+  --color-accent-soft: #0f9e86;
+  --color-danger: #d63b3b;
+  --color-text-primary: #16181a;
+  --color-text-secondary: #5b615c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+::selection {
+  background-color: rgba(46, 213, 115, 0.3);
+}
+
+/* Scrollbar discrète, cohérente avec le thème actif */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-card-border);
+  border-radius: 8px;
+}
+
+@media print {
+  aside,
+  nav,
+  button {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
