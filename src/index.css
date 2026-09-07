@@ -7,15 +7,15 @@
 
 /* Thème sombre (par défaut) — "terminal de trading" */
 :root {
-  --color-bg: #0a0c0a;
-  --color-bg-alt: #0d1117;
-  --color-card: #141714;
-  --color-card-border: #252925;
-  --color-accent: #2ed573;
+  --color-bg: #000003;
+  --color-bg-alt: #170d0d;
+  --color-card: #00000974;
+  --color-card-border: #ededf315;
+  --color-accent: #00aa44;
   --color-accent-soft: #1DE9B6;
   --color-danger: #ff5252;
-  --color-text-primary: #ebedeb;
-  --color-text-secondary: #8c918c;
+  --color-text-primary: #fdfefd;
+  --color-text-secondary: #cdd2cd;
 }
 
 /* Thème clair — mêmes rôles de couleur, palette inversée et adoucie */

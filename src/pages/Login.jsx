@@ -52,11 +52,13 @@ export default function Login() {
         {GOOGLE_CLIENT_ID ? (
           <div className="mb-4">
             <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                if (credentialResponse.credential) {
-                  loginWithGoogleCredential(credentialResponse.credential);
-                }
-              }}
+             onSuccess={(credentialResponse) => {
+  if (credentialResponse.credential) {
+    loginWithGoogleCredential(credentialResponse.credential).catch((err) => {
+      setFormError(err.message || 'La connexion Google a échoué. Réessayez.');
+    });
+  }
+}}
               onError={() => setFormError('La connexion Google a échoué. Réessayez.')}
               theme="filled_black"
               shape="pill"

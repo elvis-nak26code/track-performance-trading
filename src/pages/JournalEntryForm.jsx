@@ -81,25 +81,26 @@ export default function JournalEntryForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="flex flex-col gap-1 text-xs uppercase tracking-wide text-text-secondary font-mono">
               Indice concerné
-              <select
-                required
-                value={form.instrument}
-                onChange={(e) => update({ instrument: e.target.value })}
-                className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary font-mono focus:outline-none focus:border-accent/60"
-              >
-                <option value="" disabled>
-                  Choisir un instrument…
-                </option>
-                {marketsByCategory.map((cat) => (
-                  <optgroup key={cat.value} label={getMarketCategoryLabel(cat.value)}>
-                    {cat.options.map((m) => (
-                      <option key={m.symbol} value={m.symbol}>
-                        {m.symbol} — {m.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+              <input
+  required
+  list="instruments-list"
+  value={form.instrument}
+  onChange={(e) => update({ instrument: e.target.value })}
+  placeholder="Choisir ou saisir un instrument…"
+  className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary font-mono focus:outline-none focus:border-accent/60"
+/>
+
+<datalist id="instruments-list">
+  {marketsByCategory.map((cat) =>
+    cat.options.map((m) => (
+      <option
+        key={m.symbol}
+        value={m.symbol}
+        label={`${m.symbol} — ${m.name}`}
+      />
+    ))
+  )}
+</datalist>
             </label>
             <label className="flex flex-col gap-1 text-xs uppercase tracking-wide text-text-secondary font-mono">
               Date

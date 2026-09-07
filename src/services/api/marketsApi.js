@@ -7,6 +7,7 @@
 // persistés en localStorage, en plus du catalogue de référence embarqué
 // (markets.json), afin qu'ils survivent à un rechargement de la page.
 import mockMarkets from '../mockData/markets.json';
+import { getToken, notifyUnauthorized } from '../../utils/authToken';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
@@ -36,16 +37,27 @@ function writeCustomMarkets(markets) {
 async function httpRequest(path, options = {}) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+  const token = getToken();
+
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       signal: controller.signal,
       ...options,
     });
-    if (!response.ok) {
-      throw new Error(`Erreur API (${response.status}) sur ${path}`);
+
+    const json = await response.json().catch(() => null);
+
+    if (response.status === 401) {
+      notifyUnauthorized();
     }
-    return await response.json();
+    if (!response.ok) {
+      throw new Error(json?.message || `Erreur API (${response.status}) sur ${path}`);
+    }
+    return json.data;
   } finally {
     clearTimeout(timeoutId);
   }
