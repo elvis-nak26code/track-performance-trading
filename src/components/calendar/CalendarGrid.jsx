@@ -47,14 +47,14 @@ export default function CalendarGrid({ trades, monthDate }) {
               {stats && (
                 <div className="text-center">
                   <p
-                    className={`font-mono text-xs sm:text-sm font-semibold ${
+                    className={`text-[7px] font-mono text-xs sm:text-sm font-semibold sm:none ${
                       stats.pnl >= 0 ? 'text-accent' : 'text-danger'
                     }`}
                   >
                     {stats.pnl >= 0 ? '+' : ''}
                     {stats.pnl.toFixed(0)} $
                   </p>
-                  <p className="text-[10px] text-text-secondary font-mono">
+                  <p className="text-[7px] sm:text-[10px] text-text-secondary font-mono">
                     {stats.count} trade{stats.count > 1 ? 's' : ''}
                   </p>
                 </div>
