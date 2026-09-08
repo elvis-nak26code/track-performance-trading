@@ -22,10 +22,12 @@ async function httpRequest(path, options = {}) {
 
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+          headers: {
+         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+         ...(options.body instanceof FormData
+        ? {}
+        : { 'Content-Type': 'application/json' }),
+        },
       signal: controller.signal,
       ...options,
     });
@@ -61,6 +63,59 @@ export async function fetchJournalEntryById(id) {
   return httpRequest(`/journal-entries/${id}`);
 }
 
+
+
+
+
+function buildJournalFormData(entry) {
+  const formData = new FormData();
+
+  formData.append('date', entry.date || '');
+  formData.append('instrument', entry.instrument || '');
+  formData.append('mood', entry.mood || '');
+  formData.append('text', entry.text || '');
+
+  const screenshots = entry.screenshots || [];
+
+  /*
+   * Métadonnées de toutes les captures.
+   *
+   * isNew permet au backend de distinguer :
+   * - une ancienne image déjà présente sur Cloudinary
+   * - une nouvelle image sélectionnée par l'utilisateur
+   */
+  const screenshotMetadata = screenshots.map((screenshot) => ({
+    id: screenshot.id,
+    name: screenshot.name || '',
+    caption: screenshot.caption || '',
+    isNew: screenshot.file instanceof File,
+  }));
+
+  /*
+   * On envoie uniquement les nouvelles images.
+   */
+  screenshots.forEach((screenshot) => {
+    if (screenshot.file instanceof File) {
+      formData.append('screenshots', screenshot.file);
+    }
+  });
+
+  formData.append(
+    'screenshotMetadata',
+    JSON.stringify(screenshotMetadata)
+  );
+
+  if (entry.linkedTradeIds) {
+    formData.append(
+      'linkedTradeIds',
+      JSON.stringify(entry.linkedTradeIds)
+    );
+  }
+
+  return formData;
+}
+
+
 /** Crée une nouvelle entrée de journal. */
 export async function createJournalEntry(entry) {
   if (USE_MOCK) {
@@ -68,7 +123,10 @@ export async function createJournalEntry(entry) {
     inMemoryEntries = [newEntry, ...inMemoryEntries];
     return mockDelay(newEntry);
   }
-  return httpRequest('/journal-entries', { method: 'POST', body: JSON.stringify(entry) });
+  return httpRequest('/journal-entries', {
+  method: 'POST',
+  body: buildJournalFormData(entry),
+});
 }
 
 /** Met à jour une entrée de journal existante. */
@@ -78,7 +136,10 @@ export async function updateJournalEntry(id, updates) {
     const updated = inMemoryEntries.find((e) => e.id === id);
     return mockDelay(updated);
   }
-  return httpRequest(`/journal-entries/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
+  return httpRequest(`/journal-entries/${id}`, {
+    method: 'PUT',
+    body: buildJournalFormData(updates),
+  });
 }
 
 /** Supprime une entrée de journal. */

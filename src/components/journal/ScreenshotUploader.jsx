@@ -13,6 +13,7 @@ export default function ScreenshotUploader({ screenshots, onChange }) {
     const files = Array.from(fileList).slice(0, MAX_SCREENSHOTS - screenshots.length);
     const newScreenshots = files.map((file) => ({
       id: `shot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      file,
       url: URL.createObjectURL(file),
       name: file.name,
       caption: '',
@@ -81,7 +82,13 @@ export default function ScreenshotUploader({ screenshots, onChange }) {
 
 ScreenshotUploader.propTypes = {
   screenshots: PropTypes.arrayOf(
-    PropTypes.shape({ id: PropTypes.string, url: PropTypes.string, name: PropTypes.string, caption: PropTypes.string })
+    PropTypes.shape({
+      id: PropTypes.string,
+      file: PropTypes.instanceOf(File),
+      url: PropTypes.string,
+      name: PropTypes.string,
+      caption: PropTypes.string,
+       })
   ).isRequired,
   onChange: PropTypes.func.isRequired,
 };
