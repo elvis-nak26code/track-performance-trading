@@ -20,14 +20,14 @@ function CalendarGrid({ trades, monthDate }) {
 
   return (
     <div>
-      <div className="grid grid-cols-7 gap-2 mb-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
         {WEEKDAY_LABELS_FR.map((d) => (
-          <span key={d} className="text-[11px] text-text-secondary text-center font-mono uppercase tracking-wide">
-            {d}
+          <span key={d} className="text-[10px] sm:text-[11px] text-text-secondary text-center font-mono uppercase tracking-wide truncate">
+            {d.slice(0, 1)}
           </span>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {days.map((day) => {
           const key = toIsoDateKey(day);
           const inMonth = isSameMonth(day, monthDate);
@@ -43,22 +43,22 @@ function CalendarGrid({ trades, monthDate }) {
           return (
             <div
               key={key}
-              className={`aspect-square sm:aspect-auto sm:h-28 rounded-card border p-2 flex flex-col justify-between ${cardClass} ${
+              className={`aspect-square sm:aspect-auto sm:h-28 rounded-card border p-1 sm:p-2 flex flex-col items-center sm:items-stretch justify-between ${cardClass} ${
                 inMonth ? '' : 'opacity-30'
               }`}
             >
-              <span className="text-xs font-mono text-text-secondary">{day.getDate()}</span>
+              <span className="text-[10px] sm:text-xs font-mono text-text-secondary">{day.getDate()}</span>
               {stats && (
-                <div className="text-center">
+                <div className="text-center sm:text-left">
                   <p
-                    className={`text-[7px] font-mono text-xs sm:text-sm font-semibold ${
+                    className={`text-[9px] sm:text-xs font-mono font-semibold leading-tight ${
                       stats.pnl >= 0 ? 'text-accent' : 'text-danger'
                     }`}
                   >
                     {stats.pnl >= 0 ? '+' : ''}
                     {stats.pnl.toFixed(0)} $
                   </p>
-                  <p className="text-[7px] sm:text-[10px] text-text-secondary font-mono">
+                  <p className="hidden sm:block text-[10px] text-text-secondary font-mono">
                     {stats.count} trade{stats.count > 1 ? 's' : ''}
                   </p>
                 </div>

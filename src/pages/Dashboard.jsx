@@ -65,6 +65,7 @@ export default function Dashboard() {
           <>
             <Button
               variant="primary"
+              className="flex-1 sm:flex-none justify-center"
               onClick={() => {
                 if (requirePlan('créer un nouveau trade')) setShowTradeModal(true);
               }}
@@ -73,6 +74,7 @@ export default function Dashboard() {
             </Button>
             <Button
               variant="secondary"
+              className="flex-1 sm:flex-none justify-center"
               onClick={() => {
                 if (requirePlan('créer une nouvelle entrée de journal')) navigate('/journal/nouveau');
               }}
@@ -108,7 +110,7 @@ export default function Dashboard() {
                 tone={kpis.profitFactor >= 1 ? 'positive' : 'negative'}
               />
               <KpiCard label="R moyen" value={`${kpis.avgR >= 0 ? '+' : ''}${kpis.avgR.toFixed(2)}R`} tone={kpis.avgR >= 0 ? 'positive' : 'negative'} />
-              <KpiCard label="Nombre de trades" value={trades.length} />
+              <KpiCard label="Nombre de trades" value={trades.length} className="col-span-2 sm:col-span-1" />
             </div>
           )}
 

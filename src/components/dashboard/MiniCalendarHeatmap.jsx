@@ -17,14 +17,14 @@ function MiniCalendarHeatmap({ trades, monthDate }) {
 
   return (
     <div>
-      <div className="grid grid-cols-7 gap-1 mb-1">
+      <div className="grid grid-cols-7 gap-[3px] sm:gap-1 mb-1">
         {WEEKDAY_LABELS_FR.map((d) => (
           <span key={d} className="text-[10px] text-text-secondary text-center font-mono">
             {d}
           </span>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-[3px] sm:gap-1">
         {days.map((day) => {
           const key = toIsoDateKey(day);
           const inMonth = isSameMonth(day, monthDate);

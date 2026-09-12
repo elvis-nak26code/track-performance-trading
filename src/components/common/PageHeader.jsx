@@ -12,7 +12,7 @@ export default function PageHeader({ eyebrow, title, description, actions }) {
         <h1 className="text-2xl font-semibold text-text-primary">{title}</h1>
         {description && <p className="text-sm text-text-secondary mt-1">{description}</p>}
       </div>
-      {actions && <div className="flex items-center gap-2 flex-wrap">{actions}</div>}
+      {actions && <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">{actions}</div>}
     </div>
   );
 }
