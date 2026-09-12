@@ -2,7 +2,7 @@
 // librairie tierce). Calcule le P&L automatiquement si laissé vide.
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { STRATEGIES } from '../../constants/strategies';
+import { STRATEGIES, getStrategyLabel, normalizeStrategyInput } from '../../constants/strategies';
 import Button from '../common/Button';
 import InputSymbol from '../track-record/InputSymbol'
 
@@ -21,6 +21,7 @@ const EMPTY_TRADE = {
 export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
   const [form, setForm] = useState(initialTrade || EMPTY_TRADE);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [customStrategyInput, setCustomStrategyInput] = useState('');
 
   useEffect(() => {
     setForm(initialTrade || EMPTY_TRADE);
@@ -38,6 +39,26 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
         : [...current, value];
       return { ...prev, strategies: next };
     });
+  }
+
+  // Ajoute une approche saisie librement (si elle ne correspond pas à une
+  // approche connue, on la stocke telle quelle comme un simple tag).
+  function addCustomStrategy() {
+    const normalized = normalizeStrategyInput(customStrategyInput);
+    if (!normalized) return;
+    setForm((prev) => {
+      const current = prev.strategies || [];
+      if (current.includes(normalized)) return prev;
+      return { ...prev, strategies: [...current, normalized] };
+    });
+    setCustomStrategyInput('');
+  }
+
+  function removeStrategy(value) {
+    setForm((prev) => ({
+      ...prev,
+      strategies: (prev.strategies || []).filter((s) => s !== value),
+    }));
   }
 
   async function handleSubmit(e) {
@@ -82,7 +103,7 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
       </label> */}
       <InputSymbol form={form} update={update} />
       
-      <div className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
+      <div className="flex flex-col gap-1 text-xs font-mono text-text-secondary sm:col-span-2">
         Approche(s) utilisée(s)
         <div className="flex flex-wrap gap-2 mt-1">
           {STRATEGIES.map((s) => {
@@ -104,8 +125,57 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
             );
           })}
         </div>
-        <p className="text-[10px] text-text-secondary/70 normal-case mt-1">
-          Fondamentale et Price Action peuvent être combinées sur un même trade.
+
+        {((form.strategies || []).filter(
+          (s) => !STRATEGIES.some((known) => known.value === s)
+        ).length > 0) && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {(form.strategies || [])
+              .filter((s) => !STRATEGIES.some((known) => known.value === s))
+              .map((custom) => (
+                <span
+                  key={custom}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-card text-xs border border-accent/30 bg-accent/10 text-accent"
+                >
+                  {getStrategyLabel(custom)}
+                  <button
+                    type="button"
+                    onClick={() => removeStrategy(custom)}
+                    className="hover:text-white transition-colors"
+                    aria-label={`Retirer ${custom}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+          </div>
+        )}
+
+        <div className="flex gap-2 mt-2">
+          <input
+            type="text"
+            value={customStrategyInput}
+            onChange={(e) => setCustomStrategyInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addCustomStrategy();
+              }
+            }}
+            placeholder="Autre approche (ex : scalping, mean reversion)…"
+            className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70 flex-1 focus:outline-none focus:border-accent/60"
+          />
+          <button
+            type="button"
+            onClick={addCustomStrategy}
+            className="px-3 py-2 rounded-card text-xs border border-card-border text-text-secondary hover:border-accent/60 hover:text-accent transition-colors whitespace-nowrap"
+          >
+            Ajouter
+          </button>
+        </div>
+        <p className="text-[10px] text-text-secondary/70 normal-case">
+          Sélectionnez une ou plusieurs approches, ou saisissez le nom de votre
+          stratégie si elle n&apos;apparaît pas dans la liste.
         </p>
       </div>
       <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">

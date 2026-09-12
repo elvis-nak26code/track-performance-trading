@@ -106,7 +106,9 @@ function AuthenticatedApp() {
                 collapsed ? 'lg:ml-[76px]' : 'lg:ml-64'
               }`}
             >
-              <div className="max-w-6xl mx-auto w-full">
+              {/* Le contenu principal s'élargit quand le menu est réduit : les
+                  éléments prennent toute la place libérée au centre. */}
+              <div className={`w-full mx-auto transition-[max-width] duration-200 ${collapsed ? 'max-w-7xl' : 'max-w-6xl'}`}>
                 <PageTransition>
                   <Routes>
                     <Route path="/" element={<Dashboard />} />

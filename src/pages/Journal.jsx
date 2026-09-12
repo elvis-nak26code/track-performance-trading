@@ -62,7 +62,7 @@ function JournalList() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           {sorted.map((entry) => (
             <JournalEntryCard
               key={entry.id}
@@ -144,7 +144,7 @@ function JournalDetail({ id }) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <div className="no-print flex items-center justify-between mb-4">
         <button
           type="button"

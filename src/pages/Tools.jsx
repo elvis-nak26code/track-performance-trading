@@ -1,9 +1,8 @@
-// Page Outils d'analyse (/outils) : le calculateur de position (façon
-// myfxbook, avec sélection de paire filtrable) est mis en avant en haut de
-// page, puis la liste des outils pédagogiques explique chaque statistique.
+// Page Outils d'analyse (/outils) : la liste des outils pédagogiques
+// explique chaque statistique. Le calculateur de position vit sur le tableau
+// de bord (/tableau-de-bord) et n'est pas dupliqué ici.
 import PageHeader from '../components/common/PageHeader';
 import Card from '../components/common/Card';
-import PositionCalculator from '../components/tools/PositionCalculator';
 
 const TOOLS = [
   {
@@ -61,13 +60,6 @@ export default function Tools() {
         title="Comprendre vos outils"
         description="Ce que mesure chaque statistique de la plateforme et comment vous en servir pour progresser."
       />
-      <Card title="Calculateur de position" className="mb-4 border border-accent/30">
-        <p className="text-sm text-text-secondary leading-relaxed mb-4">
-          Taille de lot en forex (toutes les paires, filtrables) ou taille en contrats
-          futures, selon votre capital et la distance de votre stop. Inspiré de myfxbook.
-        </p>
-        <PositionCalculator />
-      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {TOOLS.map((tool) => (

@@ -1,5 +1,6 @@
 // Fonctions de calcul statistique utilisées par le tableau de bord et la page
 // analytics. Chaque fonction documente la formule qu'elle applique.
+import { getStrategyLabel } from '../constants/strategies';
 
 /**
  * Taux de réussite (win rate).
@@ -148,8 +149,11 @@ export function computeCumulativeR(trades) {
 /**
  * Répartition des trades par approche (stratégie), en tenant compte du fait
  * qu'un trade peut combiner plusieurs approches à la fois (tableau
- * `strategies`). Un trade combinant les deux approches est donc compté dans
- * les deux groupes, plus un groupe dédié "Fondamentale + Price Action".
+ * `strategies`).
+ *  - Une seule approche → un groupe portant son nom (les approches saisies
+ *    librement sont affichées telles quelles grâce à getStrategyLabel).
+ *  - Plusieurs approches combinées → un groupe dédié "Approche A + Approche B".
+ *  - Aucune approche renseignée → groupe "Non renseignée".
  * @param {Array} trades
  * @returns {Array<{key: string, trades: number, wins: number, losses: number, winRate: number, avgR: number, pnl: number}>}
  */
@@ -161,12 +165,17 @@ export function computeStrategyBreakdown(trades) {
   };
 
   trades.forEach((t) => {
-    const tags = t.strategies && t.strategies.length ? t.strategies : ['non-renseignee'];
-    if (tags.length > 1) {
-      addToGroup('Fondamentale + Price Action', t);
-    } else {
-      const label = tags[0] === 'fondamentale' ? 'Fondamentale' : tags[0] === 'price-action' ? 'Price Action' : 'Non renseignée';
+    const tags = t.strategies && t.strategies.length ? t.strategies : [null];
+    const uniqueTags = [...new Set(tags)];
+
+    if (uniqueTags.length === 1) {
+      const first = uniqueTags[0];
+      const label =
+        !first || first === 'non-renseignee' ? 'Non renseignée' : getStrategyLabel(first);
       addToGroup(label, t);
+    } else {
+      // Plusieurs approches combinées sur un même trade : un groupe dédié.
+      addToGroup(uniqueTags.map((tag) => getStrategyLabel(tag)).join(' + '), t);
     }
   });
 

@@ -13,7 +13,6 @@ import RecentTradesTable from '../components/dashboard/RecentTradesTable';
 import MiniCalendarHeatmap from '../components/dashboard/MiniCalendarHeatmap';
 import PositionCalculator from '../components/tools/PositionCalculator';
 import PreTradeChecklist from '../components/dashboard/PreTradeChecklist';
-import DashboardMarkets from '../components/dashboard/DashboardMarkets';
 import PlanBlock from '../components/subscription/PlanBlock';
 import { usePlan } from '../context/PlanContext';
 import TradeForm from '../components/track-record/TradeForm';
@@ -138,12 +137,6 @@ export default function Dashboard() {
           </div>
         </>
       )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <div className="lg:col-span-2">
-          <DashboardMarkets />
-        </div>
-      </div>
 
       <Card title="Calculateur de position" className="mt-4">
         <PositionCalculator />
