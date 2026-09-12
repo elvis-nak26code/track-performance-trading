@@ -1,9 +1,11 @@
 // Carte de présentation d'un marché/instrument : symbole, nom, tags de
 // classification comportementale, et description de son comportement.
+// Si une fonction onDelete est fournie, un bouton de suppression s'affiche.
 import PropTypes from 'prop-types';
+import { Trash2 } from 'lucide-react';
 import { getMarketTagMeta, getMarketCategoryLabel } from '../../constants/markets';
 
-export default function MarketCard({ market }) {
+export default function MarketCard({ market, onDelete }) {
   return (
     <div className="bg-card border border-card-border rounded-card p-4 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
@@ -11,9 +13,22 @@ export default function MarketCard({ market }) {
           <p className="font-mono text-text-primary font-semibold">{market.symbol}</p>
           <p className="text-sm text-text-secondary">{market.name}</p>
         </div>
-        <span className="text-[11px] font-mono uppercase tracking-wide text-text-secondary border border-card-border rounded-full px-2 py-0.5 whitespace-nowrap">
-          {getMarketCategoryLabel(market.category)}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] font-mono uppercase tracking-wide text-text-secondary border border-card-border rounded-full px-2 py-0.5 whitespace-nowrap">
+            {getMarketCategoryLabel(market.category)}
+          </span>
+          {onDelete && (
+            <button
+              type="button"
+              onClick={onDelete}
+              title="Supprimer cet actif"
+              aria-label={`Supprimer ${market.name}`}
+              className="p-1.5 rounded-lg text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
+        </div>
       </div>
       <div className="flex flex-wrap gap-1.5">
         {market.tags.map((tag) => {
@@ -42,4 +57,5 @@ MarketCard.propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string).isRequired,
     description: PropTypes.string.isRequired,
   }).isRequired,
+  onDelete: PropTypes.func,
 };

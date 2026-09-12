@@ -16,8 +16,6 @@ import {
   Globe2,
   GraduationCap,
   Tag,
-  Sun,
-  Moon,
   UserCircle,
   LogOut,
   PanelLeftClose,
@@ -43,7 +41,7 @@ const LINKS = [
 export default function Sidebar({ collapsed, onToggleCollapsed }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   function closeMobile() {
@@ -66,7 +64,7 @@ export default function Sidebar({ collapsed, onToggleCollapsed }) {
         <div className="h-14 flex items-center justify-between px-3 border-b border-card-border shrink-0">
           {(!collapsed || mobileOpen) && (
             <span className="font-mono text-accent font-semibold tracking-wide text-xs pl-1">
-              // JOURNAL·DE·TRADING
+              // BLACKTRACKER
             </span>
           )}
           <button
@@ -91,52 +89,35 @@ export default function Sidebar({ collapsed, onToggleCollapsed }) {
                 onClick={closeMobile}
                 title={collapsed && !mobileOpen ? link.label : undefined}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 rounded-card text-sm transition-colors ${
+                  `relative flex items-center gap-3 px-3 py-2 rounded-card text-sm transition-colors ${
                     collapsed && !mobileOpen ? 'lg:justify-center' : ''
                   } ${
                     isActive
-                      ? 'bg-accent/10 text-accent border border-white/20 border-accent/20 border-x-green-500'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.03] border border-transparent'
+                      ? 'bg-gradient-to-r from-accent/15 via-accent/5 to-transparent text-accent'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.03]'
                   }`
                 }
               >
-                <Icon size={18} className="shrink-0" />
-                <span className={collapsed && !mobileOpen ? 'lg:hidden' : 'truncate'}>{link.label}</span>
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <span
+                        className="absolute left-1 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-full bg-accent shadow-[0_0_8px_rgba(0,170,68,0.8)]"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <Icon size={18} className="shrink-0" />
+                    <span className={collapsed && !mobileOpen ? 'lg:hidden' : 'truncate'}>
+                      {link.label}
+                    </span>
+                  </>
+                )}
               </NavLink>
             );
           })}
         </nav>
 
         <div className="border-t border-card-border p-2 flex flex-col gap-1 shrink-0">
-          {/* <button
-            type="button"
-            onClick={toggleTheme}
-            title={collapsed && !mobileOpen ? 'Changer de thème' : undefined}
-            className={`flex items-center gap-3 px-3 py-2 rounded-card text-sm text-text-secondary hover:text-text-primary hover:bg-white/[0.03] transition-colors ${
-              collapsed && !mobileOpen ? 'lg:justify-center' : 'justify-between'
-            }`}
-          >
-            <span className={`flex items-center gap-3 ${collapsed && !mobileOpen ? '' : ''}`}>
-              {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-              <span className={collapsed && !mobileOpen ? 'lg:hidden' : ''}>
-                Thème {theme === 'dark' ? 'sombre' : 'clair'}
-              </span>
-            </span>
-            {(!collapsed || mobileOpen) && (
-              <span
-                className={`w-9 h-5 rounded-full relative transition-colors shrink-0 ${
-                  theme === 'dark' ? 'bg-white/10' : 'bg-accent/30'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 w-4 h-4 rounded-full bg-accent transition-transform ${
-                    theme === 'dark' ? 'translate-x-0.5' : 'translate-x-[18px]'
-                  }`}
-                />
-              </span>
-            )}
-          </button> */}
-
           {AUTH_ENABLED && user && (
             <button
               type="button"

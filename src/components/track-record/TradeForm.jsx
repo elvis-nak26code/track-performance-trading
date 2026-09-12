@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { STRATEGIES } from '../../constants/strategies';
 import Button from '../common/Button';
-import Inputsymbol from '../track-record/inputdymbole'
+import InputSymbol from '../track-record/InputSymbol'
 
 const EMPTY_TRADE = {
   date: new Date().toISOString().slice(0, 10),
@@ -58,7 +58,7 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
         Date
         <input
@@ -80,7 +80,7 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
           className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary"
         />
       </label> */}
-      <Inputsymbol form={form} update={update} />
+      <InputSymbol form={form} update={update} />
       
       <div className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
         Approche(s) utilisée(s)

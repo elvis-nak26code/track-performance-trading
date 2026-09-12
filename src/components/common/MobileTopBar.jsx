@@ -16,7 +16,7 @@ export default function MobileTopBar({ onOpen }) {
         <Menu size={20} />
       </button>
       <span className="font-mono text-accent font-semibold tracking-wide text-sm">
-        // JOURNAL·DE·TRADING
+        // BLACKTRACKER
       </span>
     </div>
   );

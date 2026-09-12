@@ -39,7 +39,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-card border border-card-border rounded-card p-6">
-        <p className="font-mono text-accent text-xs tracking-wide mb-1">// JOURNAL·DE·TRADING</p>
+        <p className="font-mono text-accent text-xs tracking-wide mb-1">// BLACKTRACKER</p>
         <h1 className="text-xl font-semibold text-text-primary mb-1">
           {mode === 'login' ? 'Connexion' : 'Créer un compte'}
         </h1>

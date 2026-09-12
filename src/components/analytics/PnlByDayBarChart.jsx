@@ -2,19 +2,22 @@
 // chaque barre est verte (jour gagnant) ou rouge (jour perdant), ce qui
 // donne une vue rapide de la répartition des gains et des pertes dans le
 // temps, en complément de la courbe d'équité cumulée.
+import { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 import { formatDateShort } from '../../utils/dateHelpers';
 
-export default function PnlByDayBarChart({ trades }) {
+function PnlByDayBarChart({ trades }) {
   // Agrège le P&L par jour (un trade a un P&L, un jour peut contenir plusieurs trades).
-  const byDay = new Map();
-  trades.forEach((t) => {
-    byDay.set(t.date, (byDay.get(t.date) || 0) + t.pnl);
-  });
-  const data = Array.from(byDay.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, pnl]) => ({ date, pnl: Math.round(pnl * 100) / 100 }));
+  const data = useMemo(() => {
+    const byDay = new Map();
+    trades.forEach((t) => {
+      byDay.set(t.date, (byDay.get(t.date) || 0) + t.pnl);
+    });
+    return Array.from(byDay.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, pnl]) => ({ date, pnl: Math.round(pnl * 100) / 100 }));
+  }, [trades]);
 
   return (
     <div className="h-64">
@@ -47,7 +50,7 @@ export default function PnlByDayBarChart({ trades }) {
             }}
             cursor={{ fill: 'rgba(255,255,255,0.03)' }}
           />
-          <Bar dataKey="pnl" radius={[3, 3, 3, 3]}>
+          <Bar dataKey="pnl" radius={[3, 3, 3, 3]} isAnimationActive={false}>
             {data.map((entry, i) => (
               <Cell key={i} fill={entry.pnl >= 0 ? '#2ed573' : '#ff5252'} />
             ))}
@@ -61,3 +64,5 @@ export default function PnlByDayBarChart({ trades }) {
 PnlByDayBarChart.propTypes = {
   trades: PropTypes.array.isRequired,
 };
+
+export default memo(PnlByDayBarChart);

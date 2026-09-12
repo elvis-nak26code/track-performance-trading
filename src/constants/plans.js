@@ -51,22 +51,50 @@ export const PLANS = [
   },
 ];
 
+// Accès à vie : jamais vendu, uniquement accordé via le code promo
+// PROMO_CODE_LIFETIME (voir backend API/src/constants/plans.js).
+export const LIFETIME_PLAN = {
+  id: 'lifetime',
+  label: 'Accès à vie',
+  priceUsd: 0,
+  durationDays: Infinity,
+  period: 'à vie',
+  tagline: 'Accès illimité à la plateforme, offert.',
+  highlight: false,
+};
+
 export function getPlan(planId) {
-  return PLANS.find((p) => p.id === planId) || PLANS[0];
+  return PLANS.find((p) => p.id === planId) || (planId === LIFETIME_PLAN.id ? LIFETIME_PLAN : PLANS[0]);
 }
 
 /**
  * Calcule le nombre de jours restants sur le forfait courant.
  * Formule : durée du forfait (jours) - jours écoulés depuis son démarrage.
  * @param {string} planId
- * @param {string} planStartedAt date ISO (yyyy-MM-dd)
+ * @param {string} planStartedAt date ISO (yyyy-MM-dd ou date complète retournée par le backend)
  * @returns {number} jours restants (0 minimum)
  */
 export function computeDaysRemaining(planId, planStartedAt) {
   const plan = getPlan(planId);
-  const started = new Date(`${planStartedAt}T00:00:00`);
-  const now = new Date();
-  const elapsedMs = now.getTime() - started.getTime();
+  // Accès à vie : il ne reste jamais 0 jour.
+  if (plan.durationDays === Infinity) return Infinity;
+  if (!planStartedAt) return plan.durationDays;
+  // Le backend renvoie une date ISO complète (avec "T"), le mode mock une
+  // date simple yyyy-MM-dd : on gère les deux formats.
+  const date = planStartedAt.includes('T') ? new Date(planStartedAt) : new Date(`${planStartedAt}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return plan.durationDays;
+  const elapsedMs = Date.now() - date.getTime();
   const elapsedDays = Math.floor(elapsedMs / (1000 * 60 * 60 * 24));
   return Math.max(0, plan.durationDays - elapsedDays);
+}
+
+/**
+ * Un forfait est considéré expiré dès qu'il ne reste plus aucun jour.
+ * C'est cette fonction (cohérente avec le backend, plan.middleware.js) qui
+ * pilote le verrouillage des statistiques et des nouvelles entrées.
+ */
+export function isPlanExpired(planId, planStartedAt) {
+  const plan = getPlan(planId);
+  if (plan.durationDays === Infinity) return false;
+  return computeDaysRemaining(planId, planStartedAt) === 0;
 }

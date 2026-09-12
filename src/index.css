@@ -10,7 +10,7 @@
   --color-bg: #000003;
   --color-bg-alt: #170d0d;
   --color-card: #000005ee;
-  --color-card-border: #ededf315;
+  --color-card-border: #ededf32e;
   --color-accent: #00aa44;
   --color-accent-soft: #1DE9B6;
   --color-danger: #ff5252;
@@ -42,6 +42,26 @@ body {
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fond sombre en profondeur : halos radiaux très subtils (vert "terminal")
+   pour donner du relief aux tableaux de bord sans nuire à la lisibilité. */
+:root:not(.light) body {
+  background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 170, 68, 0.07), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 110%, rgba(29, 233, 182, 0.04), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Anneau clavier / focus cohérent avec l'accent du thème. */
+:focus-visible {
+  outline: 2px solid var(--color-accent-soft);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 ::selection {
   background-color: rgba(46, 213, 115, 0.3);
 }
@@ -58,6 +78,113 @@ body {
   background: var(--color-card-border);
   border-radius: 8px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-soft);
+}
+
+/* Feuille blanche du journal (type PDF) : l'utilisateur écrit directement
+   et peut y déposer des images, redimensionnables via la poignée du coìn. */
+.journal-paper {
+  background: #ffffff;
+  color: #16181a;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.journal-editable {
+  outline: none;
+  min-height: 82vh;
+  caret-color: var(--color-accent);
+  font-size: 16px;
+}
+.journal-editable:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+.journal-editable p {
+  margin: 0 0 14px;
+}
+.journal-editable img {
+  display: block;
+  margin: 12px 0;
+  height: auto;
+  max-width: 100%;
+  resize: both;
+  overflow: hidden;
+}
+/* Image sélectionnée : contour visible + pastille de suppression */
+.journal-editable img.journal-img-selected {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.journal-img-delete {
+  position: fixed;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  border: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+.journal-img-delete:hover {
+  background: #dc2626;
+}
+
+/* Export PDF : on n'imprime que la feuille blanche, le reste est masqué.
+   "Ctrl+P / Imprimer" fonctionne également depuis la vue détail. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  html,
+  body,
+  #root,
+  main {
+    background: #ffffff !important;
+  }
+  aside,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+  .max-w-6xl {
+    max-width: 100% !important;
+  }
+  .journal-paper {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .journal-editable {
+    min-height: 0 !important;
+    font-size: 12pt !important;
+    color: #111111 !important;
+  }
+  .journal-editable img {
+    resize: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .journal-editable p {
+    orphans: 3;
+    widows: 3;
+  }
+}
 
 @media print {
   aside,
@@ -68,5 +195,111 @@ body {
   body {
     background: white !important;
     color: black !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Transitions de navigation entre les pages (page-in) + animations
+   légères de la landing page (reveal au scroll + entrée en cascade).
+   ───────────────────────────────────────────────────────────── */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.page-transition {
+  animation: page-in 0.3s ease-out;
+}
+
+/* Apparition au scroll (IntersectionObserver → .reveal-visible) */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+  will-change: opacity, transform;
+}
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Entrée en cascade du hero (animation définie via --dans un style inline) */
+.hero-anim {
+  animation: fade-up 0.7s ease-out both;
+}
+
+.landing-hover-lift {
+  transition:
+    transform 0.25s ease-out,
+    border-color 0.25s ease-out,
+    box-shadow 0.25s ease-out;
+}
+.landing-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px -20px rgba(0, 200, 83, 0.25);
+}
+
+/* Respiration lente des bougies décoratives du hero */
+@keyframes candles-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+.candles-bg {
+  animation: candles-breathe 7s ease-in-out infinite;
+}
+
+/* Bandeau de cotations défilant */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.ticker-track {
+  animation: marquee 40s linear infinite;
+}
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+.ticker-mask {
+  mask-image: linear-gradient(to right, black 88%, transparent);
+}
+
+/* Accessibilité : on coupe les animations si l'utilisateur les a désactivées */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .reveal,
+  .hero-anim,
+  .landing-hover-lift,
+  .candles-bg,
+  .ticker-track {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

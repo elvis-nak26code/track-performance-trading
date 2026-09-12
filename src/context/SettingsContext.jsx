@@ -34,7 +34,11 @@ export function SettingsProvider({ children }) {
   const [settings, setSettings] = useState(loadSettings);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    } catch {
+      // localStorage indisponible (mode privé, quota dépassé)
+    }
   }, [settings]);
 
   const updateSettings = useCallback((patch) => {

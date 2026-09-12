@@ -18,6 +18,7 @@
 // façon identique quel que soit le mode.
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { apiRegister, apiLogin, apiGoogleLogin, apiChoosePlan } from '../services/api/authApi';
 
@@ -54,6 +55,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null); // { user, token }
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     try {
@@ -69,7 +71,10 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setSession(null);
-  }, []);
+    // Après déconnexion, on revient toujours sur la page de connexion
+    // (jamais sur la landing page).
+    navigate('/connexion', { replace: true });
+  }, [navigate]);
 
   // Déconnexion forcée si le backend renvoie 401 sur une requête (jeton
   // expiré/invalide) pendant que l'utilisateur navigue dans l'app.
@@ -77,6 +82,22 @@ export function AuthProvider({ children }) {
     window.addEventListener('auth:unauthorized', logout);
     return () => window.removeEventListener('auth:unauthorized', logout);
   }, [logout]);
+
+  // Re-synchronise la session React quand le stockage local est modifié
+  // par un autre module (ex: code promo appliqué en mode mock via
+  // updateStoredSession).
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (stored) setSession(stored);
+      } catch {
+        // session invalide, on l'ignore
+      }
+    };
+    window.addEventListener('auth:session-updated', handler);
+    return () => window.removeEventListener('auth:session-updated', handler);
+  }, []);
 
   function persistSession(nextSession) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession));
@@ -213,6 +234,28 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
+  // Re-charge les infos utilisateur depuis le backend (apiFetchMe). Utilisé
+  // après un paiement Genius Pay (webhook) pour refléter immédiatement le
+  // forfait activé côté serveur, sans obliger l'utilisateur à se reconnecter.
+  const refreshUser = useCallback(async () => {
+    if (USE_MOCK) return;
+    try {
+      const user = await apiFetchMe();
+      setSession((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev, user };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+      });
+    } catch (err) {
+      // 401 → notifyUnauthorized gère la déconnexion ; les autres erreurs
+      // réseau doivent juste être silencieuses (on garde la session locale).
+      if (err.name !== 'AbortError') {
+        setError(err.message || 'Impossible de rafraîchir le profil.');
+      }
+    }
+  }, []);
+
   const value = useMemo(
     () => ({
       user: session?.user || null,
@@ -223,8 +266,9 @@ export function AuthProvider({ children }) {
       loginWithGoogleCredential,
       logout,
       updatePlan,
+      refreshUser,
     }),
-    [session, isLoading, error, login, register, loginWithGoogleCredential, logout, updatePlan]
+    [session, isLoading, error, login, register, loginWithGoogleCredential, logout, updatePlan, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

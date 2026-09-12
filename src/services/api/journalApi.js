@@ -1,13 +1,13 @@
 // Couche d'abstraction pour les entrées de journal. Même principe que
 // tradesApi.js : mock local ou vrai backend selon VITE_USE_MOCK_DATA.
 import mockJournalEntries from '../mockData/journalEntries.json';
-import { getToken, notifyUnauthorized } from '../../utils/authToken';
+import { getToken, notifyUnauthorized, notifyPlanExpired } from '../../utils/authToken';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 10000;
 
-function mockDelay(data, ms = 250) {
+function mockDelay(data, ms = 0) {
   return new Promise((resolve) => setTimeout(() => resolve(structuredCloneSafe(data)), ms));
 }
 
@@ -36,6 +36,9 @@ async function httpRequest(path, options = {}) {
 
     if (response.status === 401) {
       notifyUnauthorized();
+    }
+    if (response.status === 403 && json?.code === 'PLAN_EXPIRED') {
+      notifyPlanExpired();
     }
     if (!response.ok) {
       throw new Error(json?.message || `Erreur API (${response.status}) sur ${path}`);
@@ -74,6 +77,15 @@ function buildJournalFormData(entry) {
   formData.append('instrument', entry.instrument || '');
   formData.append('mood', entry.mood || '');
   formData.append('text', entry.text || '');
+
+  // Blocs ordonnés (texte / image). Les blocs image référencent l'id d'une
+  // capture du tableau screenshots (envoyé en métadonnées ci-dessous).
+  const blocks = (entry.blocks || []).map((b) =>
+    b.type === 'image'
+      ? { type: 'image', screenshotId: b.screenshotId || '' }
+      : { type: 'text', content: b.content || '' }
+  );
+  formData.append('blocks', JSON.stringify(blocks));
 
   const screenshots = entry.screenshots || [];
 

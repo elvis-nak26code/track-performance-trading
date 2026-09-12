@@ -12,7 +12,7 @@ export default function RecentTradesTable({ trades }) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm font-mono">
         <thead>
-          <tr className="text-left text-text-secondary text-[11px] uppercase tracking-wide border-b border-white/40 border-card-border/40">
+          <tr className="text-left text-text-secondary text-[11px] uppercase tracking-wide border-b border-card-border/40">
             <th className="py-2 pr-3 font-normal">Date</th>
             <th className="py-2 pr-3 font-normal">Symbole</th>
             <th className="py-2 pr-3 font-normal">Sens</th>
@@ -22,7 +22,7 @@ export default function RecentTradesTable({ trades }) {
         </thead>
         <tbody>
           {trades.map((t) => (
-            <tr key={t.id} className="border-b border-card-border/30 border-white/30 last:border-0">
+            <tr key={t.id} className="border-b border-card-border/30 last:border-0">
               <td className="py-2 pr-3 text-text-secondary">{formatDateShort(t.date)}</td>
               <td className="py-2 pr-3 text-text-primary">{t.symbol}</td>
               <td className="py-2 pr-3">

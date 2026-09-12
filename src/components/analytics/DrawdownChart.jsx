@@ -1,9 +1,10 @@
 // Courbe de drawdown (écart par rapport au plus haut niveau d'équité atteint).
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDateShort } from '../../utils/dateHelpers';
 
-export default function DrawdownChart({ data }) {
+function DrawdownChart({ data }) {
   return (
     <div className="h-56">
       <ResponsiveContainer width="100%" height="100%">
@@ -39,7 +40,7 @@ export default function DrawdownChart({ data }) {
               fontFamily: 'JetBrains Mono, monospace',
             }}
           />
-          <Area type="monotone" dataKey="drawdown" stroke="#ff5252" strokeWidth={2} fill="url(#drawdownGradient)" />
+          <Area type="monotone" dataKey="drawdown" stroke="#ff5252" strokeWidth={2} fill="url(#drawdownGradient)" isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -49,3 +50,5 @@ export default function DrawdownChart({ data }) {
 DrawdownChart.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({ date: PropTypes.string, drawdown: PropTypes.number })).isRequired,
 };
+
+export default memo(DrawdownChart);

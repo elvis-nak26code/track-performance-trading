@@ -1,11 +1,14 @@
 // Page Tarifs (/tarifs) : essai gratuit, forfait mensuel, forfait annuel.
 // Toutes les fonctionnalités de la plateforme sont incluses dans chaque
 // forfait — seules la durée et la formule de facturation changent.
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import PageHeader from '../components/common/PageHeader';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
 import { PLANS, formatXof } from '../constants/plans';
+import { createCheckout } from '../services/api/subscriptionApi';
 
 const ALL_FEATURES = [
   'Tableau de bord & KPIs en temps réel',
@@ -19,7 +22,44 @@ const ALL_FEATURES = [
 ];
 
 export default function Pricing() {
-  const { user, updatePlan } = useAuth();
+  const { user, updatePlan, refreshUser } = useAuth();
+  const [payError, setPayError] = useState(null);
+  const [isPaying, setIsPaying] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Retour du checkout Genius Pay (?resultat=succes) : le backend a activé le
+  // forfait via le webhook, on re-charge le profil pour le refléter dans l'UI.
+  useEffect(() => {
+    const result = searchParams.get('resultat');
+    if (result === 'succes') refreshUser();
+  }, [searchParams, refreshUser]);
+
+  async function handleChoose(planId) {
+    setPayError(null);
+    // Essai gratuit : activation directe (pas de paiement)
+    if (planId === 'essai') {
+      await updatePlan(planId);
+      return;
+    }
+    // Forfait payant : initie le checkout via Genius Pay
+    try {
+      setIsPaying(true);
+      const { payUrl } = await createCheckout(planId);
+      if (payUrl) {
+        window.location.href = payUrl;
+        // Ne pas setIsPaying(false) : on quitte la page
+        return;
+      }
+    } catch (err) {
+      if (err.code === 'PAYMENT_NOT_CONFIGURED') {
+        setPayError('Le paiement en ligne n\'est pas encore disponible. Contactez-nous pour activer votre forfait.');
+      } else {
+        setPayError(err.message || 'Une erreur est survenue lors de l\'initiation du paiement.');
+      }
+    } finally {
+      setIsPaying(false);
+    }
+  }
 
   return (
     <div>
@@ -78,16 +118,23 @@ export default function Pricing() {
 
               <Button
                 variant={plan.highlight ? 'primary' : 'secondary'}
-                disabled={isCurrent}
-                onClick={() => updatePlan(plan.id)}
+                disabled={isCurrent || isPaying}
+                loading={isPaying && !isCurrent}
+                onClick={() => handleChoose(plan.id)}
                 className="w-full"
               >
-                {isCurrent ? 'Forfait actuel' : plan.id === 'essai' ? "Démarrer l'essai" : 'Choisir ce forfait'}
+                {isCurrent ? 'Forfait actuel' : plan.id === 'essai' ? "Démarrer l'essai" : 'S\'abonner'}
               </Button>
             </div>
           );
         })}
       </div>
+
+      {payError && (
+          <div className="col-span-full mb-4 rounded-lg border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">
+            {payError}
+          </div>
+        )}
 
       <p className="text-xs text-text-secondary">
         Taux de conversion FCFA indicatif (≈ 600 FCFA pour 1 $), fourni à titre d&apos;ordre de grandeur — le taux

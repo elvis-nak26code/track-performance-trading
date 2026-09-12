@@ -23,7 +23,7 @@ export default function BreakdownTable({ rows, keyLabel }) {
           {rows.map((row) => {
             const widthPct = Math.min(100, (Math.abs(row.pnl) / maxAbsPnl) * 100);
             return (
-              <tr key={row.key} className="border-b border-white/10 border-card-border/60 last:border-0">
+              <tr key={row.key} className="border-b border-card-border/60 last:border-0">
                 <td className="py-2 pr-3 text-text-primary">{row.key}</td>
                 <td className="py-2 pr-3 text-text-secondary">{row.trades}</td>
                 <td className="py-2 pr-3 text-accent">{row.wins}</td>

@@ -1,10 +1,11 @@
 // Courbe du R cumulé réalisé au fil des trades (même logique que la courbe
 // d'équité, mais exprimée en multiples de R plutôt qu'en dollars).
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDateShort } from '../../utils/dateHelpers';
 
-export default function RCumulativeChart({ data }) {
+function RCumulativeChart({ data }) {
   return (
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
@@ -41,7 +42,7 @@ export default function RCumulativeChart({ data }) {
               fontFamily: 'JetBrains Mono, monospace',
             }}
           />
-          <Area type="monotone" dataKey="cumulativeR" stroke="#1DE9B6" strokeWidth={2} fill="url(#rCumulativeGradient)" />
+          <Area type="monotone" dataKey="cumulativeR" stroke="#1DE9B6" strokeWidth={2} fill="url(#rCumulativeGradient)" isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -51,3 +52,5 @@ export default function RCumulativeChart({ data }) {
 RCumulativeChart.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({ date: PropTypes.string, cumulativeR: PropTypes.number })).isRequired,
 };
+
+export default memo(RCumulativeChart);

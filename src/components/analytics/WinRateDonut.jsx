@@ -1,8 +1,9 @@
 // Donut chart du taux de réussite global (gagnants vs perdants).
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
-export default function WinRateDonut({ wins, losses }) {
+function WinRateDonut({ wins, losses }) {
   const data = [
     { name: 'Gagnants', value: wins },
     { name: 'Perdants', value: losses },
@@ -22,6 +23,7 @@ export default function WinRateDonut({ wins, losses }) {
             startAngle={90}
             endAngle={-270}
             stroke="none"
+            isAnimationActive={false}
           >
             <Cell fill="#2ed573" />
             <Cell fill="#ff5252" />
@@ -51,3 +53,5 @@ WinRateDonut.propTypes = {
   wins: PropTypes.number.isRequired,
   losses: PropTypes.number.isRequired,
 };
+
+export default memo(WinRateDonut);

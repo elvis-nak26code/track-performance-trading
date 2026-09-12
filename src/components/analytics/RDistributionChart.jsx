@@ -1,8 +1,9 @@
 // Histogramme de distribution des multiples R sur l'ensemble des trades.
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-export default function RDistributionChart({ data }) {
+function RDistributionChart({ data }) {
   return (
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
@@ -34,7 +35,7 @@ export default function RDistributionChart({ data }) {
             }}
             cursor={{ fill: 'rgba(255,255,255,0.03)' }}
           />
-          <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+          <Bar dataKey="count" radius={[4, 4, 0, 0]} isAnimationActive={false}>
             {data.map((entry, i) => (
               <Cell key={i} fill={entry.bucket.includes('-') || entry.bucket.startsWith('<') ? '#ff5252' : '#2ed573'} />
             ))}
@@ -48,3 +49,5 @@ export default function RDistributionChart({ data }) {
 RDistributionChart.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({ bucket: PropTypes.string, count: PropTypes.number })).isRequired,
 };
+
+export default memo(RDistributionChart);

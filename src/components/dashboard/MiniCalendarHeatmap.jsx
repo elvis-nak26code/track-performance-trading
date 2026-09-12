@@ -1,16 +1,19 @@
 // Mini heatmap calendrier du mois en cours, affichée sur le tableau de bord.
 // Vert = jour gagnant, rouge = jour perdant, gris = pas de trade.
+import { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { buildCalendarGrid, isSameMonth, toIsoDateKey, WEEKDAY_LABELS_FR } from '../../utils/dateHelpers';
 
-export default function MiniCalendarHeatmap({ trades, monthDate }) {
-  const days = buildCalendarGrid(monthDate);
+function MiniCalendarHeatmap({ trades, monthDate }) {
+  const days = useMemo(() => buildCalendarGrid(monthDate), [monthDate]);
 
-  const pnlByDay = new Map();
-  trades.forEach((t) => {
-    const current = pnlByDay.get(t.date) || 0;
-    pnlByDay.set(t.date, current + t.pnl);
-  });
+  const pnlByDay = useMemo(() => {
+    const map = new Map();
+    trades.forEach((t) => {
+      map.set(t.date, (map.get(t.date) || 0) + t.pnl);
+    });
+    return map;
+  }, [trades]);
 
   return (
     <div>
@@ -51,3 +54,5 @@ MiniCalendarHeatmap.propTypes = {
   trades: PropTypes.array.isRequired,
   monthDate: PropTypes.instanceOf(Date).isRequired,
 };
+
+export default memo(MiniCalendarHeatmap);

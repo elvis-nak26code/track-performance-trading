@@ -7,10 +7,15 @@ import Badge from '../common/Badge';
 
 export default function JournalEntryCard({ entry, onDelete }) {
   const mood = getMoodMeta(entry.mood);
-  const preview = entry.text.length > 140 ? `${entry.text.slice(0, 140)}…` : entry.text;
+
+  // Préview basée sur le premier bloc de texte (ou l'ancien champ "text").
+  const text = Array.isArray(entry.blocks)
+    ? entry.blocks.find((b) => b.type === 'text')?.content || ''
+    : entry.text || '';
+  const preview = text.length > 140 ? `${text.slice(0, 140)}…` : text;
 
   return (
-    <div className="bg-card border border-card-border rounded-card p-4 flex flex-col gap-2">
+    <div className="bg-card border border-card-border rounded-card p-4 flex flex-col gap-2 overflow-hidden">
       <div className="flex items-start justify-between gap-2">
         <div>
           <Link

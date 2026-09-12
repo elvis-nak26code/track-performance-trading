@@ -22,6 +22,10 @@ export default function ScreenshotUploader({ screenshots, onChange }) {
   }
 
   function removeScreenshot(id) {
+    const shot = screenshots.find((s) => s.id === id);
+    if (shot?.url?.startsWith('blob:')) {
+      URL.revokeObjectURL(shot.url);
+    }
     onChange(screenshots.filter((s) => s.id !== id));
   }
 

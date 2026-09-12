@@ -1,10 +1,12 @@
 // Catégories d'actifs et tags de classification comportementale utilisés
 // dans la page de référence des marchés (/marches).
 export const MARKET_CATEGORIES = [
-  { value: 'action', label: 'Actions' },
   { value: 'indice', label: 'Indices' },
+  { value: 'action', label: 'Actions' },
   { value: 'forex', label: 'Forex' },
   { value: 'matiere-premiere', label: 'Matières premières' },
+  { value: 'crypto', label: 'Crypto' },
+  { value: 'synthetique', label: 'Indices synthétiques' },
 ];
 
 export const MARKET_TAGS = [

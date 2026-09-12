@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useJournalEntries } from '../hooks/useJournalEntries';
 import { useTrades } from '../hooks/useTrades';
+import { usePlan } from '../context/PlanContext';
 import PageHeader from '../components/common/PageHeader';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -17,14 +18,17 @@ import { getMoodMeta } from '../constants/moods';
 function JournalList() {
   const { entries, isLoading, removeEntry } = useJournalEntries();
   const navigate = useNavigate();
+  const { requirePlan } = usePlan();
   const [period, setPeriod] = useState({ mode: 'all' });
 
   const availableMonths = useMemo(() => listAvailableMonths(entries), [entries]);
   const filteredEntries = useMemo(() => filterByPeriod(entries, period), [entries, period]);
+  const sorted = useMemo(
+    () => [...filteredEntries].sort((a, b) => b.date.localeCompare(a.date)),
+    [filteredEntries]
+  );
 
   if (isLoading) return <LoadingState label="Chargement du journal…" />;
-
-  const sorted = [...filteredEntries].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <div>
@@ -33,7 +37,12 @@ function JournalList() {
         title="Journal de trading"
         description="Consignez votre analyse, votre état d'esprit et vos apprentissages après chaque session."
         actions={
-          <Button variant="primary" onClick={() => navigate('/journal/nouveau')}>
+          <Button
+            variant="primary"
+            onClick={() => {
+              if (requirePlan('créer une nouvelle entrée de journal')) navigate('/journal/nouveau');
+            }}
+          >
             + Nouvelle entrée
           </Button>
         }
@@ -94,55 +103,111 @@ function JournalDetail({ id }) {
     .map((tradeId) => trades.find((t) => t.id === tradeId))
     .filter(Boolean);
 
+  const hasBlocks = Array.isArray(entry.blocks) && entry.blocks.length > 0;
+
+  // Rend un bloc (texte ou image) dans l'ordre de l'entrée, sur la page
+  // blanche. Les images respectent la largeur redimensionnée par l'auteur,
+  // sinon pleine largeur.
+  function renderBlock(block, index) {
+    if (block.type === 'text') {
+      if (!block.content) return null;
+      return (
+        <p key={`blk-${index}`} className="whitespace-pre-wrap leading-relaxed text-[15px] text-neutral-800">
+          {block.content}
+        </p>
+      );
+    }
+
+    const shot = entry.screenshots?.find((s) => s.id === block.screenshotId);
+    if (!shot) return null;
+
+    return (
+      <figure key={`blk-${index}`} className="flex flex-col gap-1.5 my-4">
+        <button
+          type="button"
+          onClick={() => setLightboxShot(shot)}
+          className="text-left"
+          title="Agrandir la capture"
+        >
+          <img
+            src={shot.url}
+            alt={shot.caption || shot.name}
+            className="h-auto mx-auto max-h-[75vh] object-contain"
+            style={{ width: block.width || '100%' }}
+          />
+        </button>
+        {shot.caption && (
+          <figcaption className="text-xs text-neutral-500 font-mono px-1">{shot.caption}</figcaption>
+        )}
+      </figure>
+    );
+  }
+
   return (
-    <div>
-      <button
-        type="button"
-        onClick={() => navigate('/journal')}
-        className="text-xs font-mono text-text-secondary hover:text-accent mb-4"
-      >
-        ← Retour au journal
-      </button>
-      <PageHeader
-        eyebrow="journal · entrée"
-        title={entry.instrument}
-        description={formatDateFr(entry.date)}
-        actions={
+    <div className="max-w-4xl mx-auto">
+      <div className="no-print flex items-center justify-between mb-4">
+        <button
+          type="button"
+          onClick={() => navigate('/journal')}
+          className="text-xs font-mono text-text-secondary hover:text-accent"
+        >
+          ← Retour au journal
+        </button>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={() => window.print()}>
+            Exporter en PDF
+          </Button>
           <Button variant="secondary" onClick={() => navigate(`/journal/${entry.id}/modifier`)}>
             Modifier
           </Button>
-        }
-      />
-      <div className="flex items-center gap-2 mb-4">
-        <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono uppercase border ${mood.color}`}>
-          {mood.label}
-        </span>
+        </div>
       </div>
-      <Card className="mb-4">
-        <p className="text-sm text-text-primary whitespace-pre-wrap leading-relaxed">{entry.text}</p>
-      </Card>
 
-      {entry.screenshots?.length > 0 && (
-        <Card title="Captures d'écran" className="mb-4">
-          {/* Grande mise en page : une seule colonne sur mobile, deux sur écran large,
-              chaque capture conserve ses proportions natives (pas de recadrage forcé). */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {entry.screenshots.map((shot) => (
-              <button
-                key={shot.id}
-                type="button"
-                onClick={() => setLightboxShot(shot)}
-                className="rounded-card border border-card-border overflow-hidden bg-bg hover:border-accent/50 transition-colors text-left"
-              >
-                <img src={shot.url} alt={shot.caption || shot.name} className="w-full h-auto max-h-[480px] object-contain" />
-                {shot.caption && (
-                  <p className="text-xs text-text-secondary px-3 py-2 border-t border-card-border">{shot.caption}</p>
-                )}
-              </button>
-            ))}
+      {/* Feuille blanche façon PDF */}
+      <div className="journal-paper rounded-lg px-6 sm:px-12 py-8 sm:py-12 leading-relaxed">
+        <p className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-mono uppercase border ${mood.color}`}>
+          {mood.label}
+        </p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 mt-3">{entry.instrument}</h1>
+        <p className="text-sm text-neutral-500 font-mono mt-1">{formatDateFr(entry.date)}</p>
+        <div className="border-t border-neutral-200 my-6" />
+
+        {hasBlocks ? (
+          entry.blocks.map((block, index) => renderBlock(block, index))
+        ) : (
+          <div>
+            {entry.text && (
+              <p className="whitespace-pre-wrap leading-relaxed text-[15px] text-neutral-800">{entry.text}</p>
+            )}
+            {entry.screenshots?.length > 0 && (
+              <div className="mt-6 flex flex-col gap-6">
+                {entry.screenshots.map((shot) => (
+                  <figure key={shot.id} className="flex flex-col gap-1.5 my-4">
+                    <button
+                      type="button"
+                      onClick={() => setLightboxShot(shot)}
+                      className="text-left"
+                      title="Agrandir la capture"
+                    >
+                      <img
+                        src={shot.url}
+                        alt={shot.caption || shot.name}
+                        className="w-full h-auto max-h-[75vh] object-contain"
+                      />
+                    </button>
+                    {shot.caption && (
+                      <figcaption className="text-xs text-neutral-500 font-mono px-1">{shot.caption}</figcaption>
+                    )}
+                  </figure>
+                ))}
+              </div>
+            )}
           </div>
-        </Card>
-      )}
+        )}
+      </div>
+
+      {/* Fallback pour les anciennes entrées sans blocs : le texte est déjà
+          affiché ci-dessus, les captures sont rendues dans la page. */}
 
       {lightboxShot && (
         <div
@@ -165,7 +230,7 @@ function JournalDetail({ id }) {
       )}
 
       {linkedTrades.length > 0 && (
-        <Card title="Trades liés">
+        <Card title="Trades liés" className="no-print">
           <ul className="flex flex-col gap-2">
             {linkedTrades.map((t) => (
               <li key={t.id} className="flex items-center justify-between text-sm font-mono">

@@ -1,5 +1,5 @@
 // Tableau complet des trades pour /track-record, avec tri par colonne.
-import { useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { formatDateShort } from '../../utils/dateHelpers';
 import { formatStrategies } from '../../constants/strategies';
@@ -16,7 +16,7 @@ const COLUMNS = [
   { key: 'pnl', label: 'P&L' },
 ];
 
-export default function TradesTable({ trades, onEdit, onDelete }) {
+function TradesTable({ trades, onEdit, onDelete }) {
   const [sortKey, setSortKey] = useState('date');
   const [sortDir, setSortDir] = useState('desc');
 
@@ -29,12 +29,14 @@ export default function TradesTable({ trades, onEdit, onDelete }) {
     }
   }
 
-  const sorted = [...trades].sort((a, b) => {
+  const sorted = useMemo(() => {
     const dir = sortDir === 'asc' ? 1 : -1;
-    if (a[sortKey] < b[sortKey]) return -1 * dir;
-    if (a[sortKey] > b[sortKey]) return 1 * dir;
-    return 0;
-  });
+    return [...trades].sort((a, b) => {
+      if (a[sortKey] < b[sortKey]) return -1 * dir;
+      if (a[sortKey] > b[sortKey]) return 1 * dir;
+      return 0;
+    });
+  }, [trades, sortKey, sortDir]);
 
   if (!trades.length) {
     return <p className="text-text-secondary text-sm py-6 text-center">Aucun trade ne correspond aux filtres actuels.</p>;
@@ -44,7 +46,7 @@ export default function TradesTable({ trades, onEdit, onDelete }) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm font-mono min-w-[900px]">
         <thead>
-          <tr className="text-left text-text-secondary text-[11px] uppercase tracking-wide border-b border-white/30 border-card-border/40">
+          <tr className="text-left text-text-secondary text-[11px] uppercase tracking-wide border-b border-card-border/40">
             {COLUMNS.map((col) => (
               <th
                 key={col.key}
@@ -60,7 +62,7 @@ export default function TradesTable({ trades, onEdit, onDelete }) {
         </thead>
         <tbody>
           {sorted.map((t) => (
-            <tr key={t.id} className="border-b border-white/20 border-card-border/30 last:border-0 hover:bg-white/[0.02]">
+            <tr key={t.id} className="border-b border-card-border/30 last:border-0 hover:bg-white/[0.02]">
               <td className="py-2 pr-4 text-text-secondary whitespace-nowrap">{formatDateShort(t.date)}</td>
               <td className="py-2 pr-4 text-text-primary">{t.symbol}</td>
               <td className="py-2 pr-4">
@@ -102,3 +104,5 @@ TradesTable.propTypes = {
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
 };
+
+export default memo(TradesTable);

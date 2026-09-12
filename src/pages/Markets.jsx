@@ -16,9 +16,14 @@ import AddMarketForm from '../components/markets/AddMarketForm';
 const DEFAULT_FILTERS = { search: '', category: 'all', tag: 'all' };
 
 export default function Markets() {
-  const { markets, isLoading, addMarket } = useMarkets();
+  const { markets, isLoading, addMarket, removeMarket } = useMarkets();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  function handleDelete(market) {
+    if (!window.confirm(`Supprimer « ${market.name} » de la liste ?`)) return;
+    removeMarket(market).catch(() => {});
+  }
 
   const filtered = useMemo(() => {
     return markets.filter((m) => {
@@ -53,9 +58,9 @@ export default function Markets() {
         <EmptyState title="Aucun marché ne correspond" description="Essayez d'ajuster vos filtres." />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((m) => (
-            <MarketCard key={m.symbol} market={m} />
-          ))}
+{filtered.map((m) => (
+              <MarketCard key={m.symbol} market={m} onDelete={() => handleDelete(m)} />
+            ))}
         </div>
       )}
 

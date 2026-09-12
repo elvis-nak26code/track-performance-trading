@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 export default function Card({ children, className = '', title, action }) {
   return (
-    <div className={`bg-card border border-card-border rounded-card ${className}`}>
+    <div className={`bg-card border border-card-border rounded-card shadow-[0_2px_14px_rgba(0,0,0,0.22)] ${className}`}>
       {(title || action) && (
         <div className="flex items-center justify-between px-4 pt-4">
           {title && (

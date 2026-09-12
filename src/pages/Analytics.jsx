@@ -5,10 +5,12 @@
 import { useMemo, useState } from 'react';
 import { useTrades } from '../hooks/useTrades';
 import { useJournalEntries } from '../hooks/useJournalEntries';
+import { usePlan } from '../context/PlanContext';
 import PageHeader from '../components/common/PageHeader';
 import Card from '../components/common/Card';
 import KpiCard from '../components/common/KpiCard';
 import PeriodFilter from '../components/common/PeriodFilter';
+import PlanBlock from '../components/subscription/PlanBlock';
 import { LoadingState, EmptyState } from '../components/common/LoadingState';
 import WinRateDonut from '../components/analytics/WinRateDonut';
 import WinLossBarChart from '../components/analytics/WinLossBarChart';
@@ -38,6 +40,7 @@ const DEFAULT_PERIOD = { mode: 'all' };
 export default function Analytics() {
   const { trades, isLoading: tradesLoading } = useTrades();
   const { entries, isLoading: entriesLoading } = useJournalEntries();
+  const { isExpired } = usePlan();
   const [period, setPeriod] = useState(DEFAULT_PERIOD);
 
   const availableMonths = useMemo(() => listAvailableMonths(trades), [trades]);
@@ -67,10 +70,28 @@ export default function Analytics() {
     [entries, filteredTrades]
   );
 
-  const wins = filteredTrades.filter((t) => t.pnl > 0).length;
-  const losses = filteredTrades.filter((t) => t.pnl <= 0).length;
-  const totalR = computeTotalR(filteredTrades);
-  const totalPnlPeriod = filteredTrades.reduce((s, t) => s + t.pnl, 0);
+  const basicStats = useMemo(() => ({
+    wins: filteredTrades.filter((t) => t.pnl > 0).length,
+    losses: filteredTrades.filter((t) => t.pnl <= 0).length,
+    totalR: computeTotalR(filteredTrades),
+    totalPnlPeriod: filteredTrades.reduce((s, t) => s + t.pnl, 0),
+  }), [filteredTrades]);
+
+  // Forfait expiré : la page entière (statistiques) est verrouillée, mais les
+  // données et le journal restent consultables ailleurs dans l'app.
+  if (isExpired) {
+    return (
+      <div>
+        <PageHeader eyebrow="analytics" title="Analytics" description="Analysez votre edge en profondeur." />
+        <Card>
+          <PlanBlock
+            title="Analytics verrouillées"
+            message="Les statistiques nécessitent un forfait actif. Vos données restent enregistrées et consultables."
+          />
+        </Card>
+      </div>
+    );
+  }
 
   if (tradesLoading || entriesLoading) return <LoadingState label="Chargement des analytics…" />;
 
@@ -104,25 +125,25 @@ export default function Analytics() {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
             <KpiCard label="Trades" value={filteredTrades.length} />
-            <KpiCard label="Gagnants / Perdants" value={`${wins} / ${losses}`} />
+            <KpiCard label="Gagnants / Perdants" value={`${basicStats.wins} / ${basicStats.losses}`} />
             <KpiCard
               label="R total réalisé"
-              value={`${totalR >= 0 ? '+' : ''}${totalR.toFixed(1)}R`}
-              tone={totalR >= 0 ? 'positive' : 'negative'}
+              value={`${basicStats.totalR >= 0 ? '+' : ''}${basicStats.totalR.toFixed(1)}R`}
+              tone={basicStats.totalR >= 0 ? 'positive' : 'negative'}
             />
             <KpiCard
               label="P&L période"
-              value={`${totalPnlPeriod >= 0 ? '+' : ''}${totalPnlPeriod.toFixed(2)} $`}
-              tone={totalPnlPeriod >= 0 ? 'positive' : 'negative'}
+              value={`${basicStats.totalPnlPeriod >= 0 ? '+' : ''}${basicStats.totalPnlPeriod.toFixed(2)} $`}
+              tone={basicStats.totalPnlPeriod >= 0 ? 'positive' : 'negative'}
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
             <Card title="Taux de réussite">
-              <WinRateDonut wins={wins} losses={losses} />
+              <WinRateDonut wins={basicStats.wins} losses={basicStats.losses} />
             </Card>
             <Card title="Gagnants vs perdants">
-              <WinLossBarChart wins={wins} losses={losses} />
+              <WinLossBarChart wins={basicStats.wins} losses={basicStats.losses} />
             </Card>
             <Card title="Distribution des R">
               <RDistributionChart data={rDistribution} />

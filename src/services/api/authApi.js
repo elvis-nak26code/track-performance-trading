@@ -2,7 +2,7 @@
 // (Express). Utilisée par AuthContext.jsx uniquement quand
 // VITE_USE_MOCK_DATA=false — en mode mock, AuthContext continue de gérer
 // les comptes en localStorage comme avant, sans passer par ce fichier.
-import { getToken } from '../../utils/authToken';
+import { getToken, notifyUnauthorized, notifyPlanExpired } from '../../utils/authToken';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 10000;
@@ -24,6 +24,12 @@ async function request(path, options = {}) {
 
     const json = await response.json().catch(() => null);
 
+    if (response.status === 401) {
+      notifyUnauthorized();
+    }
+    if (response.status === 403 && json?.code === 'PLAN_EXPIRED') {
+      notifyPlanExpired();
+    }
     if (!response.ok) {
       throw new Error(json?.message || `Erreur API (${response.status}) sur ${path}`);
     }

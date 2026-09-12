@@ -1,10 +1,11 @@
 // Graphique en barres simple comparant le nombre de trades gagnants et
 // perdants (vue complémentaire du donut, plus lisible pour comparer des
 // volumes bruts).
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-export default function WinLossBarChart({ wins, losses }) {
+function WinLossBarChart({ wins, losses }) {
   const data = [
     { label: 'Gagnants', count: wins },
     { label: 'Perdants', count: losses },
@@ -37,7 +38,7 @@ export default function WinLossBarChart({ wins, losses }) {
             }}
             cursor={{ fill: 'rgba(255,255,255,0.03)' }}
           />
-          <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={80}>
+          <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={80} isAnimationActive={false}>
             <Cell fill="#2ed573" />
             <Cell fill="#ff5252" />
           </Bar>
@@ -51,3 +52,5 @@ WinLossBarChart.propTypes = {
   wins: PropTypes.number.isRequired,
   losses: PropTypes.number.isRequired,
 };
+
+export default memo(WinLossBarChart);

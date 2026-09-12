@@ -1,18 +1,22 @@
 // Grille calendrier mensuelle complète pour la page /calendrier :
 // affiche le P&L du jour et le nombre de trades dans chaque case.
+import { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { buildCalendarGrid, isSameMonth, toIsoDateKey, WEEKDAY_LABELS_FR } from '../../utils/dateHelpers';
 
-export default function CalendarGrid({ trades, monthDate }) {
-  const days = buildCalendarGrid(monthDate);
+function CalendarGrid({ trades, monthDate }) {
+  const days = useMemo(() => buildCalendarGrid(monthDate), [monthDate]);
 
-  const statsByDay = new Map();
-  trades.forEach((t) => {
-    const existing = statsByDay.get(t.date) || { pnl: 0, count: 0, winRateSum: 0 };
-    existing.pnl += t.pnl;
-    existing.count += 1;
-    statsByDay.set(t.date, existing);
-  });
+  const statsByDay = useMemo(() => {
+    const map = new Map();
+    trades.forEach((t) => {
+      const existing = map.get(t.date) || { pnl: 0, count: 0, winRateSum: 0 };
+      existing.pnl += t.pnl;
+      existing.count += 1;
+      map.set(t.date, existing);
+    });
+    return map;
+  }, [trades]);
 
   return (
     <div>
@@ -32,8 +36,8 @@ export default function CalendarGrid({ trades, monthDate }) {
           let cardClass = 'bg-white/[0.02] border-card-border';
           if (stats) {
             cardClass = stats.pnl >= 0
-              ? 'bg-accent/10 border-green-400/30 bg-green-400/10'
-              : 'bg-danger/10 border-red-400/30 bg-red-400/10';
+              ? 'bg-green-400/10 border-green-400/30'
+              : 'bg-red-400/10 border-red-400/30';
           }
 
           return (
@@ -47,7 +51,7 @@ export default function CalendarGrid({ trades, monthDate }) {
               {stats && (
                 <div className="text-center">
                   <p
-                    className={`text-[7px] font-mono text-xs sm:text-sm font-semibold sm:none ${
+                    className={`text-[7px] font-mono text-xs sm:text-sm font-semibold ${
                       stats.pnl >= 0 ? 'text-accent' : 'text-danger'
                     }`}
                   >
@@ -71,3 +75,5 @@ CalendarGrid.propTypes = {
   trades: PropTypes.array.isRequired,
   monthDate: PropTypes.instanceOf(Date).isRequired,
 };
+
+export default memo(CalendarGrid);

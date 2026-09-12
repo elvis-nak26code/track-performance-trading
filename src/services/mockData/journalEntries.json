@@ -4,8 +4,39 @@
     "date": "2026-08-28",
     "instrument": "NQ1!",
     "mood": "confiant",
-    "text": "Le marché a ouvert avec un gap clair au-dessus de la zone de liquidité de la veille. J'ai attendu le retest avant d'entrer, exactement comme dans mon plan. Pas d'entrée anticipée, pas de FOMO. Sortie partielle au premier objectif puis trailing stop sur le reste. C'est ce genre de journée que je veux répéter : patience avant l'entrée, discipline après.",
-    "screenshots": [],
+    "text": "Le marché a ouvert avec un gap clair au-dessus de la zone de liquidité de la veille. J'ai attendu le retest avant d'entrer, exactement comme dans mon plan.\n\nSortie partielle au premier objectif puis trailing stop sur le reste. C'est ce genre de journée que je veux répéter : patience avant l'entrée, discipline après.",
+    "blocks": [
+      {
+        "type": "text",
+        "content": "Le marché a ouvert avec un gap clair au-dessus de la zone de liquidité de la veille. J'ai attendu le retest avant d'entrer, exactement comme dans mon plan."
+      },
+      {
+        "type": "image",
+        "screenshotId": "shot-001"
+      },
+      {
+        "type": "text",
+        "content": "Sortie partielle au premier objectif puis trailing stop sur le reste. C'est ce genre de journée que je veux répéter : patience avant l'entrée, discipline après."
+      },
+      {
+        "type": "image",
+        "screenshotId": "shot-002"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": "shot-001",
+        "url": "https://picsum.photos/seed/nq1-retest/1400/800",
+        "name": "Entrée NQ",
+        "caption": "Entrée prise sur le retest du gap"
+      },
+      {
+        "id": "shot-002",
+        "url": "https://picsum.photos/seed/nq1-trail/1400/800",
+        "name": "Sortie NQ",
+        "caption": "Trailing stop après la sortie partielle"
+      }
+    ],
     "linkedTradeIds": ["trd-050", "trd-051"]
   },
   {
@@ -22,8 +53,29 @@
     "date": "2026-08-14",
     "instrument": "ES1!",
     "mood": "calme",
-    "text": "Range serré toute la matinée sur ES. J'ai décidé de ne pas forcer une entrée et d'attendre l'après-midi. Finalement une seule opportunité claire en price action sur la cassure de range, prise avec un stop serré. Petit gain mais surtout satisfaction d'avoir respecté mon plan de ne pas trader le range.",
-    "screenshots": [],
+    "text": "Range serré toute la matinée sur ES. J'ai décidé de ne pas forcer une entrée et d'attendre l'après-midi.\n\nFinalement une seule opportunité claire en price action sur la cassure de range, prise avec un stop serré. Petit gain mais surtout satisfaction d'avoir respecté mon plan de ne pas trader le range.",
+    "blocks": [
+      {
+        "type": "text",
+        "content": "Range serré toute la matinée sur ES. J'ai décidé de ne pas forcer une entrée et d'attendre l'après-midi."
+      },
+      {
+        "type": "image",
+        "screenshotId": "shot-003"
+      },
+      {
+        "type": "text",
+        "content": "Finalement une seule opportunité claire en price action sur la cassure de range, prise avec un stop serré. Petit gain mais surtout satisfaction d'avoir respecté mon plan de ne pas trader le range."
+      }
+    ],
+    "screenshots": [
+      {
+        "id": "shot-003",
+        "url": "https://picsum.photos/seed/es-cassure/1400/800",
+        "name": "Cassure de range",
+        "caption": "Cassure de range en price action"
+      }
+    ],
     "linkedTradeIds": ["trd-045"]
   },
   {

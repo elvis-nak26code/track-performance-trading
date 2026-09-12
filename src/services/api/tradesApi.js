@@ -3,14 +3,16 @@
 // Cela permet de brancher une vraie API plus tard en changeant uniquement
 // VITE_USE_MOCK_DATA=false, sans toucher aux composants qui consomment ce module.
 import mockTrades from '../mockData/trades.json';
-import { getToken, notifyUnauthorized } from '../../utils/authToken';
+import { getToken, notifyUnauthorized, notifyPlanExpired } from '../../utils/authToken';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 10000;
 
-// Simule la latence réseau en mode mock pour un comportement réaliste.
-function mockDelay(data, ms = 250) {
+// Petit délai uniquement pour éviter un rendu "zébré" si une vraie latence
+// réseau existe plus tard ; en mode mock, on va le plus vite possible
+// (0 ms) pour une interface fluide.
+function mockDelay(data, ms = 0) {
   return new Promise((resolve) => setTimeout(() => resolve(structuredCloneSafe(data)), ms));
 }
 
@@ -41,6 +43,9 @@ async function httpRequest(path, options = {}) {
 
     if (response.status === 401) {
       notifyUnauthorized();
+    }
+    if (response.status === 403 && json?.code === 'PLAN_EXPIRED') {
+      notifyPlanExpired();
     }
     if (!response.ok) {
       throw new Error(json?.message || `Erreur API (${response.status}) sur ${path}`);

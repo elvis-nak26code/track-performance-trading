@@ -1,8 +1,9 @@
-// Page Outils d'analyse (/outils) : explique chaque outil/statistique de la
-// plateforme, à quoi il sert et comment l'interpréter. Contenu statique,
-// pédagogique — pas de données à charger.
+// Page Outils d'analyse (/outils) : le calculateur de position (façon
+// myfxbook, avec sélection de paire filtrable) est mis en avant en haut de
+// page, puis la liste des outils pédagogiques explique chaque statistique.
 import PageHeader from '../components/common/PageHeader';
 import Card from '../components/common/Card';
+import PositionCalculator from '../components/tools/PositionCalculator';
 
 const TOOLS = [
   {
@@ -46,11 +47,6 @@ const TOOLS = [
       "Croise vos entrées de journal (tag d'humeur) avec les trades qui leur sont liés pour calculer un win rate moyen par humeur. Objectif : repérer objectivement si certains états mentaux (tilt, avidité, peur) dégradent réellement vos résultats.",
   },
   {
-    title: 'Calculateur de risque',
-    description:
-      "Calcule la taille de position à partir de votre capital, du pourcentage de risque accepté, de la distance de votre stop et de la valeur du point de l'instrument. Il utilise la valeur de 1R que vous avez définie dans votre profil pour rester cohérent avec vos statistiques en R.",
-  },
-  {
     title: 'Checklist pré-trade',
     description:
       "Liste de vérifications personnalisable à cocher avant de logger un trade. Elle n'analyse pas vos données passées mais vous aide à appliquer votre plan de façon disciplinée avant chaque nouvelle prise de position.",
@@ -65,6 +61,14 @@ export default function Tools() {
         title="Comprendre vos outils"
         description="Ce que mesure chaque statistique de la plateforme et comment vous en servir pour progresser."
       />
+      <Card title="Calculateur de position" className="mb-4 border border-accent/30">
+        <p className="text-sm text-text-secondary leading-relaxed mb-4">
+          Taille de lot en forex (toutes les paires, filtrables) ou taille en contrats
+          futures, selon votre capital et la distance de votre stop. Inspiré de myfxbook.
+        </p>
+        <PositionCalculator />
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {TOOLS.map((tool) => (
           <Card key={tool.title} title={tool.title}>

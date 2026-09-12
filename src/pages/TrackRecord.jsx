@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { subDays, isAfter, parseISO } from 'date-fns';
 import { useTrades } from '../hooks/useTrades';
+import { usePlan } from '../context/PlanContext';
 import PageHeader from '../components/common/PageHeader';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -17,6 +18,7 @@ const DEFAULT_FILTERS = { search: '', strategy: 'all', outcome: 'all', period: '
 
 export default function TrackRecord() {
   const { trades, isLoading, addTrade, addTradesBulk, editTrade, removeTrade } = useTrades();
+  const { requirePlan } = usePlan();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -53,14 +55,21 @@ export default function TrackRecord() {
             <Button variant="secondary" onClick={handlePrint}>
               Exporter / Imprimer PDF
             </Button>
-            <Button variant="secondary" onClick={() => setShowImportModal(true)}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (requirePlan('importer des trades')) setShowImportModal(true);
+              }}
+            >
               Importer CSV
             </Button>
             <Button
               variant="primary"
               onClick={() => {
-                setEditingTrade(null);
-                setShowTradeModal(true);
+                if (requirePlan('enregistrer un nouveau trade')) {
+                  setEditingTrade(null);
+                  setShowTradeModal(true);
+                }
               }}
             >
               + Log trade

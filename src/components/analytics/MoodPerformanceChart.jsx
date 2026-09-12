@@ -1,10 +1,11 @@
 // Corrélation humeur / performance : win rate moyen par tag d'humeur,
 // calculé à partir des trades liés à chaque entrée de journal.
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { getMoodMeta } from '../../constants/moods';
 
-export default function MoodPerformanceChart({ data }) {
+function MoodPerformanceChart({ data }) {
   if (!data.length) {
     return (
       <p className="text-text-secondary text-sm">
@@ -43,7 +44,7 @@ export default function MoodPerformanceChart({ data }) {
               fontFamily: 'JetBrains Mono, monospace',
             }}
           />
-          <Bar dataKey="winRate" radius={[4, 4, 0, 0]}>
+          <Bar dataKey="winRate" radius={[4, 4, 0, 0]} isAnimationActive={false}>
             {chartData.map((entry, i) => (
               <Cell key={i} fill={entry.winRate >= 50 ? '#2ed573' : '#ff5252'} />
             ))}
@@ -59,3 +60,5 @@ MoodPerformanceChart.propTypes = {
     PropTypes.shape({ mood: PropTypes.string, winRate: PropTypes.number, count: PropTypes.number })
   ).isRequired,
 };
+
+export default memo(MoodPerformanceChart);

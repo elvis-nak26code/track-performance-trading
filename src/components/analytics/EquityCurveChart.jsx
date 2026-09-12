@@ -1,9 +1,10 @@
 // Courbe d'équité complète, avec axes et tooltip détaillés (page analytics).
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDateShort } from '../../utils/dateHelpers';
 
-export default function EquityCurveChart({ data }) {
+function EquityCurveChart({ data }) {
   return (
     <div className="h-72">
       <ResponsiveContainer width="100%" height="100%">
@@ -39,7 +40,7 @@ export default function EquityCurveChart({ data }) {
               fontFamily: 'JetBrains Mono, monospace',
             }}
           />
-          <Area type="monotone" dataKey="equity" stroke="#2ed573" strokeWidth={2} fill="url(#equityFullGradient)" />
+          <Area type="monotone" dataKey="equity" stroke="#2ed573" strokeWidth={2} fill="url(#equityFullGradient)" isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -49,3 +50,5 @@ export default function EquityCurveChart({ data }) {
 EquityCurveChart.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({ date: PropTypes.string, equity: PropTypes.number })).isRequired,
 };
+
+export default memo(EquityCurveChart);

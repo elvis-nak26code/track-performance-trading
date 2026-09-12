@@ -1,9 +1,10 @@
 // Mini courbe d'équité affichée sur le tableau de bord (vue condensée,
 // sans axes détaillés — pour la vue complète voir analytics/EquityCurveChart).
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { ResponsiveContainer, AreaChart, Area, YAxis, Tooltip } from 'recharts';
 
-export default function EquityMiniChart({ data }) {
+function EquityMiniChart({ data }) {
   const isPositive = data.length > 0 && data[data.length - 1].equity >= 0;
   const strokeColor = isPositive ? '#2ed573' : '#ff5252';
 
@@ -35,6 +36,7 @@ export default function EquityMiniChart({ data }) {
             stroke={strokeColor}
             strokeWidth={2}
             fill="url(#equityMiniGradient)"
+            isAnimationActive={false}
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -47,3 +49,5 @@ EquityMiniChart.propTypes = {
     PropTypes.shape({ date: PropTypes.string, equity: PropTypes.number })
   ).isRequired,
 };
+
+export default memo(EquityMiniChart);

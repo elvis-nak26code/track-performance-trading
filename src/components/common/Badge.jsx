@@ -3,8 +3,8 @@
 import PropTypes from 'prop-types';
 
 const TONE_CLASSES = {
-  positive: 'text-accent border-green-400/20 bg-accent/10 bg-green-400/10',
-  negative: 'text-danger border-red-400/20 bg-danger/10 bg-red-400/10',
+  positive: 'text-accent border-green-400/20 bg-green-400/10',
+  negative: 'text-danger border-red-400/20 bg-red-400/10',
   neutral: 'text-text-secondary border-card-border bg-white/[0.03]',
 };
 

@@ -2,18 +2,22 @@
 // (thème, authentification, paramètres, trades, journal), le layout avec
 // menu latéral, le routage, et l'écran de connexion lorsque
 // VITE_AUTH_ENABLED=true et qu'aucun utilisateur n'est connecté.
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { TradesProvider } from './context/TradesContext';
 import { JournalProvider } from './context/JournalContext';
+import { MarketsProvider } from './context/MarketsContext';
 import { useAuth } from './hooks/useAuth';
+import { PlanProvider } from './context/PlanContext';
 import { LoadingState } from './components/common/LoadingState';
 import Sidebar from './components/common/Sidebar';
 import Login from './pages/Login';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Journal from './pages/Journal';
 import JournalEntryForm from './pages/JournalEntryForm';
@@ -28,6 +32,28 @@ import Profile from './pages/Profile';
 const AUTH_ENABLED = import.meta.env.VITE_AUTH_ENABLED === 'true';
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 const SIDEBAR_COLLAPSED_KEY = 'journal_trading_sidebar_collapsed';
+
+// Transition douce entre les pages : l'élément est re-monté à chaque
+// changement d'URL (key = pathname) et l'animation CSS "page-in" (voir
+// index.css) joue une apparition légère et discrète. On remonte aussi la
+// page en haut à chaque navigation vers une nouvelle URL.
+function PageTransition({ children }) {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
+
+  return (
+    <div key={location.pathname} className="page-transition">
+      {children}
+    </div>
+  );
+}
+
+PageTransition.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 function AuthenticatedApp() {
   const { user, isLoading } = useAuth();
@@ -50,14 +76,26 @@ function AuthenticatedApp() {
   }
 
   if (AUTH_ENABLED && !user) {
-    return <Login />;
+    // Visiteur non connecté : landing page à la racine, connexion sur
+    // /connexion. Tout le reste renvoie vers la landing (il doit se connecter
+    // avant d'accéder au tableau de bord).
+    return (
+      <PageTransition>
+        <Routes>
+          <Route path="/connexion" element={<Login />} />
+          <Route path="*" element={<Landing />} />
+        </Routes>
+      </PageTransition>
+    );
   }
 
   return (
     <SettingsProvider>
       <TradesProvider>
         <JournalProvider>
-          <div className="min-h-screen bg-bg text-text-primary font-sans">
+          <MarketsProvider>
+            <PlanProvider>
+              <div className="min-h-screen bg-bg text-text-primary font-sans">
             {/* Le menu latéral est en position fixe (voir Sidebar.jsx) : on réserve
                 l'espace correspondant via une marge à gauche du contenu principal,
                 uniquement à partir du breakpoint "lg" (sur mobile, le menu est un
@@ -69,25 +107,29 @@ function AuthenticatedApp() {
               }`}
             >
               <div className="max-w-6xl mx-auto w-full">
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/journal" element={<Journal />} />
-                  <Route path="/journal/nouveau" element={<JournalEntryForm />} />
-                  <Route path="/journal/:id" element={<Journal />} />
-                  <Route path="/journal/:id/modifier" element={<JournalEntryForm />} />
-                  <Route path="/track-record" element={<TrackRecord />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/calendrier" element={<Calendar />} />
-                  <Route path="/marches" element={<Markets />} />
-                  <Route path="/outils" element={<Tools />} />
-                  <Route path="/tarifs" element={<Pricing />} />
-                  <Route path="/profil" element={<Profile />} />
-                  <Route path="/connexion" element={<Navigate to="/" replace />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
+                <PageTransition>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/journal" element={<Journal />} />
+                    <Route path="/journal/nouveau" element={<JournalEntryForm />} />
+                    <Route path="/journal/:id" element={<Journal />} />
+                    <Route path="/journal/:id/modifier" element={<JournalEntryForm />} />
+                    <Route path="/track-record" element={<TrackRecord />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/calendrier" element={<Calendar />} />
+                    <Route path="/marches" element={<Markets />} />
+                    <Route path="/outils" element={<Tools />} />
+                    <Route path="/tarifs" element={<Pricing />} />
+                    <Route path="/profil" element={<Profile />} />
+                    <Route path="/connexion" element={<Navigate to="/" replace />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </PageTransition>
               </div>
             </main>
           </div>
+            </PlanProvider>
+          </MarketsProvider>
         </JournalProvider>
       </TradesProvider>
     </SettingsProvider>
@@ -98,11 +140,11 @@ export default function App() {
   return (
     <ThemeProvider>
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-        <AuthProvider>
-          <BrowserRouter>
+        <BrowserRouter>
+          <AuthProvider>
             <AuthenticatedApp />
-          </BrowserRouter>
-        </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </GoogleOAuthProvider>
     </ThemeProvider>
   );
