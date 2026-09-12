@@ -48,19 +48,19 @@ export default function PeriodFilter({ value, onChange, availableMonths }) {
       )}
 
       {value.mode === 'range' && (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="date"
             value={value.start || ''}
             onChange={(e) => onChange({ ...value, start: e.target.value })}
-            className="bg-bg border border-card-border rounded-card px-2 py-1.5 text-sm text-text-primary font-mono focus:outline-none focus:border-accent/60"
+            className="w-full sm:w-auto bg-bg border border-card-border rounded-card px-2 py-1.5 text-sm text-text-primary font-mono focus:outline-none focus:border-accent/60"
           />
           <span className="text-text-secondary text-xs">→</span>
           <input
             type="date"
             value={value.end || ''}
             onChange={(e) => onChange({ ...value, end: e.target.value })}
-            className="bg-bg border border-card-border rounded-card px-2 py-1.5 text-sm text-text-primary font-mono focus:outline-none focus:border-accent/60"
+            className="w-full sm:w-auto bg-bg border border-card-border rounded-card px-2 py-1.5 text-sm text-text-primary font-mono focus:outline-none focus:border-accent/60"
           />
         </div>
       )}

@@ -1,4 +1,5 @@
 // Tableau compact des 5 derniers trades, affiché sur le tableau de bord.
+// Sur mobile, seules les colonnes essentielles restent visibles.
 import PropTypes from 'prop-types';
 import { formatDateShort } from '../../utils/dateHelpers';
 import Badge from '../common/Badge';
@@ -15,9 +16,9 @@ export default function RecentTradesTable({ trades }) {
           <tr className="text-left text-text-secondary text-[11px] uppercase tracking-wide border-b border-card-border/40">
             <th className="py-2 pr-3 font-normal">Date</th>
             <th className="py-2 pr-3 font-normal">Symbole</th>
-            <th className="py-2 pr-3 font-normal">Sens</th>
-            <th className="py-2 pr-3 font-normal">R</th>
-            <th className="py-2 pr-3 font-normal text-right">P&amp;L</th>
+            <th className="py-2 pr-3 font-normal hidden sm:table-cell">Sens</th>
+            <th className="py-2 pr-3 font-normal hidden sm:table-cell">R</th>
+            <th className="py-2 pr-3 font-normal text-right sm:text-left">P&amp;L</th>
           </tr>
         </thead>
         <tbody>
@@ -25,15 +26,15 @@ export default function RecentTradesTable({ trades }) {
             <tr key={t.id} className="border-b border-card-border/30 last:border-0">
               <td className="py-2 pr-3 text-text-secondary">{formatDateShort(t.date)}</td>
               <td className="py-2 pr-3 text-text-primary">{t.symbol}</td>
-              <td className="py-2 pr-3">
+              <td className="py-2 pr-3 hidden sm:table-cell">
                 <Badge tone={t.direction === 'long' ? 'positive' : 'negative'}>
                   {t.direction === 'long' ? 'Long' : 'Short'}
                 </Badge>
               </td>
-              <td className={`py-2 pr-3 ${t.r >= 0 ? 'text-accent' : 'text-danger'}`}>
+              <td className={`py-2 pr-3 hidden sm:table-cell ${t.r >= 0 ? 'text-accent' : 'text-danger'}`}>
                 {t.r >= 0 ? `+${t.r}` : t.r}R
               </td>
-              <td className={`py-2 pr-3 text-right ${t.pnl >= 0 ? 'text-accent' : 'text-danger'}`}>
+              <td className={`py-2 pr-3 text-right sm:text-left ${t.pnl >= 0 ? 'text-accent' : 'text-danger'}`}>
                 {t.pnl >= 0 ? '+' : ''}
                 {t.pnl.toFixed(2)} $
               </td>
