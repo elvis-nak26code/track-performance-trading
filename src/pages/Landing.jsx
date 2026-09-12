@@ -22,6 +22,9 @@ import {
   Mail,
   Terminal,
   Activity,
+  Repeat,
+  TrendingUp,
+  Target,
 } from 'lucide-react';
 
 const SHOTS = {
@@ -35,47 +38,71 @@ const FEATURES = [
   {
     icon: FileText,
     title: 'Journal façon papier',
-    body: "Écrivez librement sur une page blanche, glissez vos captures où vous voulez, redimensionnez-les, surlignez — puis exportez le tout en PDF.",
+    body: "Une page blanche, comme un vrai journal. Vous écrivez, glissez vos captures où vous voulez, les redimensionnez — puis exportez le tout en PDF.",
   },
   {
     icon: BarChart3,
     title: 'Track record & stats',
-    body: "Win rate, profit factor, R moyen, courbe d'équité, distribution des R… Vos métriques clés, recalculées automatiquement à chaque trade.",
+    body: "Win rate, profit factor, R moyen, courbe d'équité : vos principales stats, calculées automatiquement après chaque trade.",
   },
   {
     icon: BrainCircuit,
     title: 'Humeur × performance',
-    body: "Taggez votre état d'esprit à chaque entrée et croisez-le avec vos résultats. Repérez objectivement ce qui dégrade — ou booste — vos trades.",
+    body: "Notez votre état d'esprit à chaque entrée, comparez-le à vos résultats. Vous verrez clairement quelles émotions vous coûtent cher.",
   },
   {
     icon: Calculator,
     title: 'Calculateur de position',
-    body: 'Toutes les paires de devises, futures, indices synthétiques et matières premières, filtrables au clavier. Inspiré de Myfxbook.',
+    body: "Dimensionnez une position en quelques secondes, avec tous les actifs que vous tradez — paires, futures, indices — filtrables au clavier.",
   },
   {
     icon: CalendarDays,
     title: 'Calendrier de sessions',
-    body: "Vos jours gagnants et perdants d'un coup d'œil, mois par mois. La discipline devient visible.",
+    body: "Vos jours gagnants et perdants en un coup d'œil, mois par mois. La discipline devient enfin visible.",
   },
   {
     icon: FileDown,
     title: 'Export PDF & CSV',
-    body: 'Votre journal en PDF propre, votre track record en CSV. Vos données restent les vôtres, partout.',
+    body: "Votre journal en PDF, votre track record en CSV. Vos données restent les vôtres, exportables à tout moment.",
+  },
+];
+
+// Pourquoi tracer ses performances, pour être rentable sur la durée.
+const WHY_TRACK = [
+  {
+    icon: BrainCircuit,
+    title: 'Votre mémoire embellit tout',
+    body: "On garde en tête les beaux trades et on oublie les mauvais. Seul l'historique dit la vérité, surtout après une mauvaise série.",
+  },
+  {
+    icon: Repeat,
+    title: 'Les erreurs se répètent',
+    body: "Une faute qu'on ne voit pas revient sans cesse — et coûte plus cher à chaque fois. La traquer, c'est commencer à la corriger.",
+  },
+  {
+    icon: TrendingUp,
+    title: 'Un bon mois ne prouve rien',
+    body: "Quelques gros gains peuvent cacher une méthode fragile. C'est sur des dizaines ou des centaines de trades qu'une approche se juge.",
+  },
+  {
+    icon: Target,
+    title: 'La discipline tient aux faits',
+    body: "Se promettre « je ne ferai plus ça » ne suffit pas. Voir ses chiffres en noir et blanc aide à tenir ses règles.",
   },
 ];
 
 const FAQ = [
   {
     q: "À qui s'adresse BlackTracker ?",
-    a: "À tout trader — particulier ou pro — qui veut structurer sa discipline, suivre sa progression en R et comprendre ses biais comportementaux sur le long terme.",
+    a: "À tous ceux qui veulent suivre leurs trades avec rigueur et progresser sur la durée — débutants comme traders confirmés.",
   },
   {
     q: "L'application est-elle gratuite ?",
-    a: "Le cœur de l'application est accessible après inscription. Les offres avancées sont détaillées sur la page Tarifs, une fois connecté.",
+    a: "Le cœur de l'application est accessible après inscription, avec un essai gratuit. Les formules payantes sont détaillées sur la page Tarifs, une fois connecté.",
   },
   {
     q: 'Mes données sont-elles en sécurité ?',
-    a: "Oui : échanges en HTTPS, données isolées par utilisateur, jamais revendues. Vous pouvez supprimer votre compte et vos données à tout moment.",
+    a: "Oui. Les échanges sont chiffrés, vos données sont isolées par compte et jamais revendues. Vous pouvez tout supprimer à tout moment.",
   },
   {
     q: 'Faut-il installer quelque chose ?',
@@ -83,7 +110,7 @@ const FAQ = [
   },
   {
     q: 'Puis-je récupérer mes données ?',
-    a: 'Oui : export CSV du track record, export PDF du journal. Pas de verrouillage, pas de surprise.',
+    a: "Oui : export CSV du track record, export PDF du journal. Pas de verrouillage, pas de surprise.",
   },
 ];
 
@@ -100,6 +127,7 @@ export default function Landing() {
             {'// BLACKTRACKER'}
           </span>
           <nav className="hidden sm:flex items-center gap-8 text-sm text-[#cdd2cd]">
+            <a href="#pourquoi" className="hover:text-white transition-colors">Pourquoi</a>
             <a href="#features" className="hover:text-white transition-colors">Fonctionnalités</a>
             <a href="#captures" className="hover:text-white transition-colors">Captures</a>
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
@@ -149,9 +177,9 @@ export default function Landing() {
             className="hero-anim mt-6 text-base sm:text-lg text-[#cdd2cd] max-w-2xl mx-auto leading-relaxed"
             style={{ animationDelay: '200ms' }}
           >
-            BlackTracker transforme chaque session en données exploitables :
-            page libre façon papier, track record en R, corrélation
-            humeur-performance — et export PDF en un clic.
+            BlackTracker réunit votre journal et vos statistiques au même endroit : vous écrivez
+            vos sessions sur une page blanche, vos trades se calculent tout seuls, et vous voyez
+            enfin ce qui fonctionne sur la durée.
           </p>
 
           <div
@@ -209,6 +237,54 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ───────────────── POURQUOI TRACKER SES PERFORMANCES ───────────────── */}
+      <section id="pourquoi" className="max-w-6xl mx-auto px-6 py-20 sm:py-24">
+        <div className="text-center max-w-3xl mx-auto">
+          <p className="font-mono text-[11px] text-[#00e065] uppercase tracking-widest mb-3">
+            {'// pourquoi tracker ses performances'}
+          </p>
+          <Reveal>
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight">
+              Vos erreurs ne comptent
+              <br />
+              que si vous les voyez.
+            </h2>
+          </Reveal>
+          <Reveal delay={80}>
+            <p className="mt-4 text-[#cdd2cd] leading-relaxed text-[15px]">
+              Sans historique, on rejoue les mêmes trades, on refait les mêmes
+              erreurs, et on n&apos;a aucun moyen de faire la différence. Voici
+              pourquoi un suivi sérieux change tout sur le long terme.
+            </p>
+          </Reveal>
+        </div>
+
+        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {WHY_TRACK.map(({ icon: Icon, title, body }, i) => (
+            <Reveal key={title} delay={(i % 4) * 90}>
+              <div className="landing-hover-lift h-full rounded-xl border border-white/10 bg-[#000005] p-6 hover:border-[#00c853]/40">
+                <p className="font-mono text-xs text-[#00e065]/70 mb-3">0{i + 1}</p>
+                <div className="w-10 h-10 rounded-lg bg-[#00c853]/10 border border-[#00c853]/20 flex items-center justify-center mb-4">
+                  <Icon size={20} className="text-[#00e065]" />
+                </div>
+                <h3 className="font-semibold text-white mb-1.5">{title}</h3>
+                <p className="text-sm text-[#cdd2cd] leading-relaxed">{body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={120}>
+          <div className="mt-10 rounded-xl border border-[#00c853]/25 bg-[#00c853]/5 px-6 py-8 text-center">
+            <p className="text-white font-medium text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+              Être rentable sur la durée, c&apos;est répéter, des centaines de fois,
+              une méthode qui fonctionne. Pour la trouver, il faut connaître ses
+              chiffres — et ça se construit trade après trade.
+            </p>
+          </div>
+        </Reveal>
+      </section>
+
       {/* ───────────────── POURQUOI CRÉÉ ───────────────── */}
       <section className="max-w-6xl mx-auto px-6 py-20 sm:py-24">
         <p className="font-mono text-[11px] text-[#00e065] uppercase tracking-widest mb-3">
@@ -224,31 +300,30 @@ export default function Landing() {
             <div className="space-y-4">
               <p>
                 Pendant longtemps, mon « journal » tenait dans un cahier, des
-                feuilles volantes et des captures d&apos;écran perdues au fond de
-                mes dossiers. Je rejouais parfois une idée qui avait marché sans
-                comprendre pourquoi — et je refaisais surtout les mêmes erreurs,
-                faute de retour objectif.
+                feuilles volantes et des captures perdues au fond de mes
+                dossiers. Je me souvenais qu&apos;un trade avait marché, mais pas
+                pourquoi. Et je refaisais les mêmes erreurs, faute de trace
+                claire.
               </p>
               <p>
-                Les tableurs n&apos;aidaient pas : trop rigides, trop lents, et
-                incapables d&apos;accueillir une image à l&apos;endroit exact où
-                elle compte.
+                Les tableurs ne m&apos;aidaient pas : trop rigides, trop lents,
+                et incapables de mettre une capture d&apos;écran à côté du texte,
+                là où elle compte.
               </p>
             </div>
           </Reveal>
           <Reveal delay={160}>
             <div className="space-y-4">
               <p>
-                BlackTracker est né de ce manque : un endroit où l&apos;on écrit
-                comme sur papier — librement, sans contrainte de mise en page —
-                avec la puissance du numérique : calcul auto du P&amp;L, captures
-                intégrées, export PDF, et un suivi en R qui rend la progression
-                mesurable.
+                BlackTracker est né pour régler ça. Un endroit où l&apos;on écrit
+                comme sur papier, mais où tout le reste est automatique : P&amp;L,
+                R, statistiques, exports. On écrit cinq minutes, on pose une
+                image à côté, on relit plus tard.
               </p>
               <p>
-                <strong className="text-white">L&apos;objectif est simple :</strong>{' '}
-                cinq minutes d&apos;écriture après chaque session, et un vrai
-                avantage compétitif — la connaissance de soi.
+                <strong className="text-white">L&apos;idée en une phrase :</strong>{' '}
+                plus vous tracez vos sessions, plus votre historique vous en
+                apprend sur votre trading.
               </p>
             </div>
           </Reveal>
@@ -287,7 +362,7 @@ export default function Landing() {
           {'// en images'}
         </p>
         <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-center mb-4">
-          Une interface pensée pour être lue.
+          Une interface faite pour être lue.
         </h2>
         <p className="text-center text-[#cdd2cd] text-sm mb-12">
           Le même terminal sobre partout : écrire, mesurer, relire.
@@ -329,12 +404,12 @@ export default function Landing() {
               {
                 icon: ShieldCheck,
                 title: 'Vos données, chez vous',
-                body: "Pas de publicité, pas de revente. BlackTracker tourne pour vous — et vous pouvez exporter ou supprimer l'intégralité de vos données à tout moment.",
+                body: "Pas de publicité, pas de revente. Vous pouvez exporter vos données ou tout supprimer, à tout moment.",
               },
               {
                 icon: MousePointerClick,
                 title: 'Conçu pour être utilisé',
-                body: "Zéro complexité inutile : un formulaire, des raccourcis, des saisies rapides. L'objectif, c'est cinq minutes d'écriture après chaque session — pas une corvée.",
+                body: "Enregistrer un trade prend quelques secondes, analyser une session cinq minutes. Rien de compliqué, rien de superflu.",
               },
             ].map(({ icon: Icon, title, body }, i) => (
               <Reveal key={title} delay={i * 120}>
@@ -394,8 +469,8 @@ export default function Landing() {
             Prêt à structurer votre trading&nbsp;?
           </h2>
           <p className="text-[#cdd2cd] max-w-lg mx-auto mb-8">
-            Créez votre compte en quelques secondes, et écrivez votre prochaine
-            session dès aujourd&apos;hui.
+            Créez votre compte en quelques secondes, puis notez votre prochaine
+            session. C&apos;est tout ce qu&apos;il faut pour commencer.
           </p>
           <button
             type="button"
