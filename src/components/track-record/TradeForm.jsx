@@ -79,7 +79,7 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-x-3 gap-y-3">
       <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
         Date
         <input
@@ -87,25 +87,29 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
           required
           value={form.date}
           onChange={(e) => update({ date: e.target.value })}
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary"
+          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
         />
       </label>
-      {/* <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
+      <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
+        Sens
+        <select
+          value={form.direction}
+          onChange={(e) => update({ direction: e.target.value })}
+          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
+        >
+          <option value="long">Long</option>
+          <option value="short">Short</option>
+        </select>
+      </label>
+
+      <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary col-span-2">
         Symbole
-        <input
-          type="text"
-          required
-          value={form.symbol}
-          onChange={(e) => update({ symbol: e.target.value })}
-          placeholder="NQ1!, ES, MNQ…"
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary"
-        />
-      </label> */}
-      <InputSymbol form={form} update={update} />
-      
-      <div className="flex flex-col gap-1 text-xs font-mono text-text-secondary sm:col-span-2">
+        <InputSymbol form={form} update={update} />
+      </label>
+
+      <div className="flex flex-col gap-1 text-xs font-mono text-text-secondary col-span-2">
         Approche(s) utilisée(s)
-        <div className="flex flex-wrap gap-2 mt-1">
+        <div className="flex flex-nowrap sm:flex-wrap gap-2 mt-1 overflow-x-auto sm:overflow-visible pb-1">
           {STRATEGIES.map((s) => {
             const isSelected = (form.strategies || []).includes(s.value);
             return (
@@ -113,7 +117,7 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
                 key={s.value}
                 type="button"
                 onClick={() => toggleStrategy(s.value)}
-                className={`px-3 py-1.5 rounded-card text-xs border transition-colors ${
+                className={`shrink-0 px-3 py-1.5 rounded-card text-xs border transition-colors ${
                   isSelected
                     ? 'bg-accent/10 border-accent/20 text-accent'
                     : 'border-card-border text-text-secondary hover:border-text-secondary'
@@ -162,33 +166,23 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
                 addCustomStrategy();
               }
             }}
-            placeholder="Autre approche (ex : scalping, mean reversion)…"
-            className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70 flex-1 focus:outline-none focus:border-accent/60"
+            placeholder="Autre approche (ex : scalping)…"
+            className="flex-1 min-w-0 bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70 focus:outline-none focus:border-accent/60"
           />
           <button
             type="button"
             onClick={addCustomStrategy}
-            className="px-3 py-2 rounded-card text-xs border border-card-border text-text-secondary hover:border-accent/60 hover:text-accent transition-colors whitespace-nowrap"
+            className="shrink-0 px-3 py-2 rounded-card text-xs border border-card-border text-text-secondary hover:border-accent/60 hover:text-accent transition-colors whitespace-nowrap"
           >
             Ajouter
           </button>
         </div>
-        <p className="text-[10px] text-text-secondary/70 normal-case">
+        <p className="hidden sm:block text-[10px] text-text-secondary/70 normal-case">
           Sélectionnez une ou plusieurs approches, ou saisissez le nom de votre
           stratégie si elle n&apos;apparaît pas dans la liste.
         </p>
       </div>
-      <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
-        Direction
-        <select
-          value={form.direction}
-          onChange={(e) => update({ direction: e.target.value })}
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary"
-        >
-          <option value="long">Long</option>
-          <option value="short">Short</option>
-        </select>
-      </label>
+
       <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
         Prix d&apos;entrée
         <input
@@ -197,7 +191,7 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
           required
           value={form.entryPrice}
           onChange={(e) => update({ entryPrice: e.target.value })}
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary"
+          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
         />
       </label>
       <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
@@ -208,7 +202,7 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
           required
           value={form.exitPrice}
           onChange={(e) => update({ exitPrice: e.target.value })}
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary"
+          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
         />
       </label>
       <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
@@ -220,7 +214,7 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
           required
           value={form.quantity}
           onChange={(e) => update({ quantity: e.target.value })}
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary"
+          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
         />
       </label>
       <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
@@ -231,7 +225,7 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
           required
           value={form.r}
           onChange={(e) => update({ r: e.target.value })}
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary"
+          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
         />
       </label>
       <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary col-span-2">
@@ -242,14 +236,14 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
           required
           value={form.pnl}
           onChange={(e) => update({ pnl: e.target.value })}
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary"
+          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
         />
       </label>
-      <div className="col-span-2 flex justify-end gap-2 mt-2">
-        <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
+      <div className="col-span-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-2">
+        <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting} className="w-full sm:w-auto">
           Annuler
         </Button>
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
+        <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full sm:w-auto">
           {isSubmitting ? (
             <>
               <span className="w-2 h-2 rounded-full bg-bg animate-pulse" />

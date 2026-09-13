@@ -78,11 +78,11 @@ export default function CsvImportModal({ onImport, onClose }) {
           </table>
         </div>
       )}
-      <div className="flex justify-end gap-2 mt-4">
-        <Button variant="secondary" onClick={onClose} disabled={isImporting}>
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-4">
+        <Button variant="secondary" onClick={onClose} disabled={isImporting} className="w-full sm:w-auto">
           Annuler
         </Button>
-        <Button variant="primary" disabled={preview.length === 0 || isImporting} onClick={handleImport}>
+        <Button variant="primary" disabled={preview.length === 0 || isImporting} onClick={handleImport} className="w-full sm:w-auto">
           {isImporting ? 'Importation…' : `Importer ${preview.length > 0 ? `(${preview.length})` : ''}`}
         </Button>
       </div>

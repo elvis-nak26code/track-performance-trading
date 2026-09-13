@@ -113,11 +113,11 @@ export default function AddMarketForm({ onSubmit, onCancel }) {
         />
       </label>
 
-      <div className="flex justify-end gap-2 mt-1">
-        <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-1">
+        <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting} className="w-full sm:w-auto">
           Annuler
         </Button>
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
+        <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full sm:w-auto">
           {isSubmitting ? 'Ajout…' : "Ajouter l'actif"}
         </Button>
       </div>
