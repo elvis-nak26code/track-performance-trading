@@ -12,11 +12,14 @@ import { SettingsProvider } from './context/SettingsContext';
 import { TradesProvider } from './context/TradesContext';
 import { JournalProvider } from './context/JournalContext';
 import { MarketsProvider } from './context/MarketsContext';
+import { StrategyProvider } from './context/StrategyContext';
 import { useAuth } from './hooks/useAuth';
+import { useSettings } from './hooks/useSettings';
 import { PlanProvider } from './context/PlanContext';
 import { LoadingState } from './components/common/LoadingState';
 import Sidebar from './components/common/Sidebar';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Journal from './pages/Journal';
@@ -26,11 +29,15 @@ import Analytics from './pages/Analytics';
 import Calendar from './pages/Calendar';
 import Markets from './pages/Markets';
 import Tools from './pages/Tools';
-import Pricing from './pages/Pricing';
+import Strategies from './pages/Strategies';
+// import Pricing from './pages/Pricing'; // Tarifs en commentaire (accès gratuit)
 import Profile from './pages/Profile';
 
 const AUTH_ENABLED = import.meta.env.VITE_AUTH_ENABLED === 'true';
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+// En version desktop (Electron), pas de page marketing : tout renvoie vers la
+// page de connexion. La landing reste réservée au site web de présentation.
+const IS_DESKTOP = import.meta.env.VITE_DESKTOP === 'true';
 const SIDEBAR_COLLAPSED_KEY = 'journal_trading_sidebar_collapsed';
 
 // Transition douce entre les pages : l'élément est re-monté à chaque
@@ -52,6 +59,24 @@ function PageTransition({ children }) {
 }
 
 PageTransition.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+// Applique le zoom d'interface choisi dans les paramètres (page Profil) à
+// toute l'application, via la propriété CSS "zoom" du document racine.
+function ApplyUiZoom({ children }) {
+  const { settings } = useSettings();
+
+  useEffect(() => {
+    const raw = Number(settings?.uiZoom);
+    const zoom = Number.isFinite(raw) ? Math.min(150, Math.max(70, raw)) : 100;
+    document.documentElement.style.zoom = String(zoom / 100);
+  }, [settings?.uiZoom]);
+
+  return children;
+}
+
+ApplyUiZoom.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
@@ -78,12 +103,17 @@ function AuthenticatedApp() {
   if (AUTH_ENABLED && !user) {
     // Visiteur non connecté : landing page à la racine, connexion sur
     // /connexion. Tout le reste renvoie vers la landing (il doit se connecter
-    // avant d'accéder au tableau de bord).
+    // avant d'accéder au tableau de bord). En desktop, pas de landing : toute
+    // URL renvoie vers la page de connexion.
     return (
       <PageTransition>
         <Routes>
           <Route path="/connexion" element={<Login />} />
-          <Route path="*" element={<Landing />} />
+          <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
+          <Route
+            path="*"
+            element={IS_DESKTOP ? <Navigate to="/connexion" replace /> : <Landing />}
+          />
         </Routes>
       </PageTransition>
     );
@@ -91,10 +121,12 @@ function AuthenticatedApp() {
 
   return (
     <SettingsProvider>
+      <ApplyUiZoom>
       <TradesProvider>
         <JournalProvider>
           <MarketsProvider>
-            <PlanProvider>
+            <StrategyProvider>
+              <PlanProvider>
               <div className="min-h-screen bg-bg text-text-primary font-sans">
             {/* Le menu latéral est en position fixe (voir Sidebar.jsx) : on réserve
                 l'espace correspondant via une marge à gauche du contenu principal,
@@ -108,7 +140,7 @@ function AuthenticatedApp() {
             >
               {/* Le contenu principal s'élargit quand le menu est réduit : les
                   éléments prennent toute la place libérée au centre. */}
-              <div className={`w-full mx-auto transition-[max-width] duration-200 ${collapsed ? 'max-w-7xl' : 'max-w-6xl'}`}>
+              <div className={`w-full mx-auto transition-[max-width] duration-200 ${collapsed ? 'max-w-screen-2xl' : 'max-w-7xl'}`}>
                 <PageTransition>
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
@@ -121,9 +153,12 @@ function AuthenticatedApp() {
                     <Route path="/calendrier" element={<Calendar />} />
                     <Route path="/marches" element={<Markets />} />
                     <Route path="/outils" element={<Tools />} />
-                    <Route path="/tarifs" element={<Pricing />} />
+                    <Route path="/strategies" element={<Strategies />} />
+                    {/* Route /tarifs en commentaire : accès gratuit (voir PlanContext FREE_ACCESS) —
+                        <Route path="/tarifs" element={<Pricing />} /> */}
                     <Route path="/profil" element={<Profile />} />
                     <Route path="/connexion" element={<Navigate to="/" replace />} />
+                    <Route path="/mot-de-passe-oublie" element={<Navigate to="/" replace />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </PageTransition>
@@ -131,9 +166,11 @@ function AuthenticatedApp() {
             </main>
           </div>
             </PlanProvider>
-          </MarketsProvider>
+              </StrategyProvider>
+            </MarketsProvider>
         </JournalProvider>
       </TradesProvider>
+      </ApplyUiZoom>
     </SettingsProvider>
   );
 }
@@ -142,7 +179,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-        <BrowserRouter>
+        <BrowserRouter basename={IS_DESKTOP ? '/app' : undefined}>
           <AuthProvider>
             <AuthenticatedApp />
           </AuthProvider>

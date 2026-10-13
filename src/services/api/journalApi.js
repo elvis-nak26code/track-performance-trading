@@ -7,6 +7,10 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 10000;
 
+// Nombre maximal de captures par entrée, aligné sur le backend
+// (API/src/middlewares/upload.middleware.js) et le serveur local de bureau.
+export const MAX_JOURNAL_SCREENSHOTS = 20;
+
 function mockDelay(data, ms = 0) {
   return new Promise((resolve) => setTimeout(() => resolve(structuredCloneSafe(data)), ms));
 }

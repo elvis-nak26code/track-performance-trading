@@ -5,29 +5,28 @@
 import { useMemo, useState } from 'react';
 import { useTrades } from '../hooks/useTrades';
 import { useJournalEntries } from '../hooks/useJournalEntries';
-import { usePlan } from '../context/PlanContext';
 import PageHeader from '../components/common/PageHeader';
 import Card from '../components/common/Card';
 import KpiCard from '../components/common/KpiCard';
 import PeriodFilter from '../components/common/PeriodFilter';
-import PlanBlock from '../components/subscription/PlanBlock';
+// import PlanBlock from '../components/subscription/PlanBlock'; // Tarifs en commentaire
 import { LoadingState, EmptyState } from '../components/common/LoadingState';
 import WinRateDonut from '../components/analytics/WinRateDonut';
 import WinLossBarChart from '../components/analytics/WinLossBarChart';
 import PnlByDayBarChart from '../components/analytics/PnlByDayBarChart';
-import RDistributionChart from '../components/analytics/RDistributionChart';
+import RPerTradeChart from '../components/analytics/RPerTradeChart';
 import EquityCurveChart from '../components/analytics/EquityCurveChart';
 import DrawdownChart from '../components/analytics/DrawdownChart';
 import RCumulativeChart from '../components/analytics/RCumulativeChart';
 import RollingWinRateChart from '../components/analytics/RollingWinRateChart';
 import BreakdownTable from '../components/analytics/BreakdownTable';
 import MoodPerformanceChart from '../components/analytics/MoodPerformanceChart';
+import ExpandableCanvas from '../components/analytics/ExpandableCanvas';
 import { listAvailableMonths, filterByPeriod } from '../utils/dateHelpers';
 import {
   computeEquityCurve,
   computeDrawdownCurve,
   computeCumulativeR,
-  computeRDistribution,
   computeRollingWinRate,
   computeStrategyBreakdown,
   computeTotalR,
@@ -40,58 +39,55 @@ const DEFAULT_PERIOD = { mode: 'all' };
 export default function Analytics() {
   const { trades, isLoading: tradesLoading } = useTrades();
   const { entries, isLoading: entriesLoading } = useJournalEntries();
-  const { isExpired } = usePlan();
   const [period, setPeriod] = useState(DEFAULT_PERIOD);
 
   const availableMonths = useMemo(() => listAvailableMonths(trades), [trades]);
   const filteredTrades = useMemo(() => filterByPeriod(trades, period), [trades, period]);
+  const [lastN, setLastN] = useState('all');
+
+  // Filtre "derniers N trades" : on garde les N trades les plus récents de la
+  // période sélectionnée, triés par date décroissante avant la troncature.
+  const rangeTrades = useMemo(() => {
+    if (lastN === 'all') return filteredTrades;
+    const n = Number(lastN);
+    return [...filteredTrades]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, n);
+  }, [filteredTrades, lastN]);
 
   const sortedTrades = useMemo(
-    () => [...filteredTrades].sort((a, b) => a.date.localeCompare(b.date)),
-    [filteredTrades]
+    () => [...rangeTrades].sort((a, b) => a.date.localeCompare(b.date)),
+    [rangeTrades]
   );
 
   const equityCurve = useMemo(() => computeEquityCurve(sortedTrades), [sortedTrades]);
   const drawdownCurve = useMemo(() => computeDrawdownCurve(equityCurve), [equityCurve]);
   const cumulativeR = useMemo(() => computeCumulativeR(sortedTrades), [sortedTrades]);
-  const rDistribution = useMemo(() => computeRDistribution(filteredTrades), [filteredTrades]);
   const rollingWinRate10 = useMemo(() => computeRollingWinRate(sortedTrades, 10), [sortedTrades]);
   const rollingWinRate20 = useMemo(() => computeRollingWinRate(sortedTrades, 20), [sortedTrades]);
 
-  const byStrategy = useMemo(() => computeStrategyBreakdown(filteredTrades), [filteredTrades]);
-  const byInstrument = useMemo(() => groupTradesBy(filteredTrades, (t) => t.symbol), [filteredTrades]);
+  const byStrategy = useMemo(() => computeStrategyBreakdown(rangeTrades), [rangeTrades]);
+  const byInstrument = useMemo(() => groupTradesBy(rangeTrades, (t) => t.symbol), [rangeTrades]);
   const byDirection = useMemo(
-    () => groupTradesBy(filteredTrades, (t) => (t.direction === 'long' ? 'Long' : 'Short')),
-    [filteredTrades]
+    () => groupTradesBy(rangeTrades, (t) => (t.direction === 'long' ? 'Long' : 'Short')),
+    [rangeTrades]
   );
 
   const moodPerformance = useMemo(
-    () => computeMoodPerformance(entries, filteredTrades),
-    [entries, filteredTrades]
+    () => computeMoodPerformance(entries, rangeTrades),
+    [entries, rangeTrades]
   );
 
   const basicStats = useMemo(() => ({
-    wins: filteredTrades.filter((t) => t.pnl > 0).length,
-    losses: filteredTrades.filter((t) => t.pnl <= 0).length,
-    totalR: computeTotalR(filteredTrades),
-    totalPnlPeriod: filteredTrades.reduce((s, t) => s + t.pnl, 0),
-  }), [filteredTrades]);
+    wins: rangeTrades.filter((t) => t.pnl > 0).length,
+    losses: rangeTrades.filter((t) => t.pnl <= 0).length,
+    totalR: computeTotalR(rangeTrades),
+    totalPnlPeriod: rangeTrades.reduce((s, t) => s + t.pnl, 0),
+  }), [rangeTrades]);
 
-  // Forfait expiré : la page entière (statistiques) est verrouillée, mais les
-  // données et le journal restent consultables ailleurs dans l'app.
-  if (isExpired) {
-    return (
-      <div>
-        <PageHeader eyebrow="analytics" title="Analytics" description="Analysez votre edge en profondeur." />
-        <Card>
-          <PlanBlock
-            title="Analytics verrouillées"
-            message="Les statistiques nécessitent un forfait actif. Vos données restent enregistrées et consultables."
-          />
-        </Card>
-      </div>
-    );
-  }
+  // Forfait expiré : la page entière (statistiques) était verrouillée.
+  // Désactivé en accès gratuit (PlanContext FREE_ACCESS).
+  // if (isExpired) { … }
 
   if (tradesLoading || entriesLoading) return <LoadingState label="Chargement des analytics…" />;
 
@@ -113,10 +109,28 @@ export default function Analytics() {
       />
 
       <Card className="mb-4">
-        <PeriodFilter value={period} onChange={setPeriod} availableMonths={availableMonths} />
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <PeriodFilter value={period} onChange={setPeriod} availableMonths={availableMonths} />
+          <div className="h-6 w-px bg-card-border hidden sm:block" />
+          <label className="flex items-center gap-2 text-xs text-text-secondary font-mono">
+            Derniers
+            <select
+              value={lastN}
+              onChange={(e) => setLastN(e.target.value)}
+              className="bg-bg border border-card-border rounded-card px-2 py-1.5 text-sm text-text-primary font-mono focus:outline-none focus:border-accent/60"
+            >
+              <option value="all">Tous</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="250">250</option>
+            </select>
+            trades
+          </label>
+        </div>
       </Card>
 
-      {filteredTrades.length === 0 ? (
+      {rangeTrades.length === 0 ? (
         <EmptyState
           title="Aucun trade sur cette période"
           description="Choisissez une autre période ou réinitialisez le filtre."
@@ -124,7 +138,7 @@ export default function Analytics() {
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-            <KpiCard label="Trades" value={filteredTrades.length} />
+            <KpiCard label="Trades" value={rangeTrades.length} />
             <KpiCard label="Gagnants / Perdants" value={`${basicStats.wins} / ${basicStats.losses}`} />
             <KpiCard
               label="R total réalisé"
@@ -138,37 +152,61 @@ export default function Analytics() {
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          <Card title="R par trade" className="mb-4">
+            <p className="text-xs text-text-secondary mb-3">
+              Une barre par trade, dans l'ordre chronologique (axe horizontal =
+              le déroulement du temps, pertes et gains se succèdent à espacement
+              régulier). L'axe vertical est le multiple de R : les pertes
+              descendent en dessous de 0 (rouge), les gains remontent au-dessus
+              (vert). Survolez une barre pour voir la date du trade.
+            </p>
+            <ExpandableCanvas label="R par trade">
+              <RPerTradeChart trades={sortedTrades} />
+            </ExpandableCanvas>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
             <Card title="Taux de réussite">
-              <WinRateDonut wins={basicStats.wins} losses={basicStats.losses} />
+              <ExpandableCanvas label="Taux de réussite">
+                <WinRateDonut wins={basicStats.wins} losses={basicStats.losses} />
+              </ExpandableCanvas>
             </Card>
             <Card title="Gagnants vs perdants">
-              <WinLossBarChart wins={basicStats.wins} losses={basicStats.losses} />
-            </Card>
-            <Card title="Distribution des R">
-              <RDistributionChart data={rDistribution} />
+              <ExpandableCanvas label="Gagnants vs perdants">
+                <WinLossBarChart wins={basicStats.wins} losses={basicStats.losses} />
+              </ExpandableCanvas>
             </Card>
           </div>
 
           <Card title="Gains et pertes sur la période choisie" className="mb-4">
-            <PnlByDayBarChart trades={filteredTrades} />
+            <ExpandableCanvas label="Gains et pertes par jour">
+              <PnlByDayBarChart trades={rangeTrades} />
+            </ExpandableCanvas>
           </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
             <Card title="Courbe d'équité ($)">
-              <EquityCurveChart data={equityCurve} />
+              <ExpandableCanvas label="Courbe d'équité">
+                <EquityCurveChart data={equityCurve} />
+              </ExpandableCanvas>
             </Card>
             <Card title="R cumulé réalisé">
-              <RCumulativeChart data={cumulativeR} />
+              <ExpandableCanvas label="R cumulé">
+                <RCumulativeChart data={cumulativeR} />
+              </ExpandableCanvas>
             </Card>
           </div>
 
           <Card title="Courbe de drawdown" className="mb-4">
-            <DrawdownChart data={drawdownCurve} />
+            <ExpandableCanvas label="Courbe de drawdown">
+              <DrawdownChart data={drawdownCurve} />
+            </ExpandableCanvas>
           </Card>
 
           <Card title="Win rate glissant (10 / 20 derniers trades)" className="mb-4">
-            <RollingWinRateChart data10={rollingWinRate10} data20={rollingWinRate20} />
+            <ExpandableCanvas label="Win rate glissant">
+              <RollingWinRateChart data10={rollingWinRate10} data20={rollingWinRate20} />
+            </ExpandableCanvas>
           </Card>
 
           <Card title="Répartition par approche" className="mb-4">
@@ -188,7 +226,9 @@ export default function Analytics() {
           </Card>
 
           <Card title="Corrélation humeur / performance">
-            <MoodPerformanceChart data={moodPerformance} />
+            <ExpandableCanvas label="Corrélation humeur / performance">
+              <MoodPerformanceChart data={moodPerformance} />
+            </ExpandableCanvas>
           </Card>
         </>
       )}

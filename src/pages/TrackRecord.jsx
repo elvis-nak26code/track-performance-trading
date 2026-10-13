@@ -14,7 +14,7 @@ import TradeFilters from '../components/track-record/TradeFilters';
 import TradeForm from '../components/track-record/TradeForm';
 import CsvImportModal from '../components/track-record/CsvImportModal';
 
-const DEFAULT_FILTERS = { search: '', strategy: 'all', outcome: 'all', period: 'all' };
+const DEFAULT_FILTERS = { search: '', outcome: 'all', period: 'all' };
 
 export default function TrackRecord() {
   const { trades, isLoading, addTrade, addTradesBulk, editTrade, removeTrade } = useTrades();
@@ -27,7 +27,6 @@ export default function TrackRecord() {
   const filteredTrades = useMemo(() => {
     return trades.filter((t) => {
       if (filters.search && !t.symbol.toLowerCase().includes(filters.search.toLowerCase())) return false;
-      if (filters.strategy !== 'all' && !(t.strategies || []).includes(filters.strategy)) return false;
       if (filters.outcome === 'win' && t.pnl <= 0) return false;
       if (filters.outcome === 'loss' && t.pnl > 0) return false;
       if (filters.period !== 'all') {
@@ -38,8 +37,29 @@ export default function TrackRecord() {
     });
   }, [trades, filters]);
 
+  // Impression / PDF du track record. Le tableau compte beaucoup de colonnes :
+  // si le contenu ne tient pas en portrait A4 (≈ 700 px utiles), on force
+  // l'orientation paysage avant d'ouvrir la boîte d'impression. Le style
+  // @page injecté est retiré juste après pour ne pas affecter les autres pages.
   function handlePrint() {
+    let style = document.getElementById('bt-print-page-size');
+    const biggest = Math.max(
+      ...Array.from(document.querySelectorAll('main table, main .overflow-x-auto')).map((el) => el.scrollWidth),
+      0
+    );
+    const needsLandscape = biggest > 700;
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'bt-print-page-size';
+      document.head.appendChild(style);
+    }
+    style.textContent = needsLandscape
+      ? '@page { size: A4 landscape; margin: 10mm; }'
+      : '@page { size: A4; margin: 14mm; }';
     window.print();
+    window.setTimeout(() => {
+      if (style) style.textContent = '';
+    }, 1000);
   }
 
   if (isLoading) return <LoadingState label="Chargement du track record…" />;

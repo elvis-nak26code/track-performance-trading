@@ -16,6 +16,9 @@ const DEFAULT_SETTINGS = {
   rValueDollars: 500,
   // Risque par défaut, en pourcentage du capital, proposé dans le calculateur.
   defaultRiskPercent: 1,
+  // Zoom de l'interface, en pourcentage (70–150). Appliqué à la racine du
+  // document pour agrandir/réduire l'ensemble du logiciel selon l'écran.
+  uiZoom: 100,
 };
 
 export const SettingsContext = createContext(null);

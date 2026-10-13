@@ -1,18 +1,19 @@
 // Formulaire d'ajout/édition manuelle d'un trade (modal simple, pas de
-// librairie tierce). Calcule le P&L automatiquement si laissé vide.
-import { useState, useEffect } from 'react';
+// librairie tierce).
+// Un panneau de conformité compare la saisie à la stratégie active
+// (direction, instruments, R minimum) afin de "respecter son plan".
+import { useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { STRATEGIES, getStrategyLabel, normalizeStrategyInput } from '../../constants/strategies';
+import { ShieldAlert, ShieldCheck, Shield } from 'lucide-react';
 import Button from '../common/Button';
 import InputSymbol from '../track-record/InputSymbol'
+import { useStrategy } from '../../hooks/useStrategy';
 
 const EMPTY_TRADE = {
   date: new Date().toISOString().slice(0, 10),
   symbol: 'NQ1!',
   strategies: [],
   direction: 'long',
-  entryPrice: '',
-  exitPrice: '',
   quantity: 1,
   r: '',
   pnl: '',
@@ -21,7 +22,7 @@ const EMPTY_TRADE = {
 export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
   const [form, setForm] = useState(initialTrade || EMPTY_TRADE);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [customStrategyInput, setCustomStrategyInput] = useState('');
+  const { activeStrategy } = useStrategy();
 
   useEffect(() => {
     setForm(initialTrade || EMPTY_TRADE);
@@ -31,35 +32,44 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
     setForm((prev) => ({ ...prev, ...patch }));
   }
 
-  function toggleStrategy(value) {
-    setForm((prev) => {
-      const current = prev.strategies || [];
-      const next = current.includes(value)
-        ? current.filter((s) => s !== value)
-        : [...current, value];
-      return { ...prev, strategies: next };
-    });
-  }
+  // ---- Conformité à la stratégie active --------------------------------
 
-  // Ajoute une approche saisie librement (si elle ne correspond pas à une
-  // approche connue, on la stocke telle quelle comme un simple tag).
-  function addCustomStrategy() {
-    const normalized = normalizeStrategyInput(customStrategyInput);
-    if (!normalized) return;
-    setForm((prev) => {
-      const current = prev.strategies || [];
-      if (current.includes(normalized)) return prev;
-      return { ...prev, strategies: [...current, normalized] };
-    });
-    setCustomStrategyInput('');
-  }
+  const conformance = useMemo(() => {
+    if (!activeStrategy) return null;
+    const cfg = activeStrategy.config || {};
+    const issues = [];
+    const validated = [];
 
-  function removeStrategy(value) {
-    setForm((prev) => ({
-      ...prev,
-      strategies: (prev.strategies || []).filter((s) => s !== value),
-    }));
-  }
+    const dirs = cfg.directions || [];
+    if (dirs.length > 0) {
+      const okDir = dirs.includes(form.direction);
+      (okDir ? validated : issues).push(
+        okDir
+          ? `Direction ${form.direction === 'long' ? 'Long' : 'Short'} autorisée`
+          : `Direction ${form.direction === 'long' ? 'Long' : 'Short'} NON autorisée par « ${activeStrategy.name} »`
+      );
+    }
+
+    const symbols = cfg.symbols || [];
+    if (symbols.length > 0) {
+      const current = String(form.symbol || '').toUpperCase();
+      const okSym = current.length > 0 && symbols.some((s) => String(s).toUpperCase() === current);
+      (okSym ? validated : issues).push(
+        okSym ? `Instrument ${current} dans le plan` : `Instrument ${current || '?'} absent du plan de la stratégie`
+      );
+    }
+
+    const minRR = Number(cfg.minRR);
+    if (minRR > 0 && form.r !== '' && form.r !== null && form.r !== undefined) {
+      const rValue = Number(form.r);
+      const okRR = rValue >= minRR;
+      (okRR ? validated : issues).push(
+        okRR ? `R (${rValue}) ≥ minimum exigé (${minRR})` : `R (${rValue}) inférieur au minimum de ${minRR}`
+      );
+    }
+
+    return { issues, validated, name: activeStrategy.name };
+  }, [activeStrategy, form.direction, form.symbol, form.r]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -67,8 +77,6 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
     try {
       await onSubmit({
         ...form,
-        entryPrice: Number(form.entryPrice),
-        exitPrice: Number(form.exitPrice),
         quantity: Number(form.quantity),
         r: Number(form.r),
         pnl: Number(form.pnl),
@@ -107,104 +115,6 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
         <InputSymbol form={form} update={update} />
       </label>
 
-      <div className="flex flex-col gap-1 text-xs font-mono text-text-secondary col-span-2">
-        Approche(s) utilisée(s)
-        <div className="flex flex-nowrap sm:flex-wrap gap-2 mt-1 overflow-x-auto sm:overflow-visible pb-1">
-          {STRATEGIES.map((s) => {
-            const isSelected = (form.strategies || []).includes(s.value);
-            return (
-              <button
-                key={s.value}
-                type="button"
-                onClick={() => toggleStrategy(s.value)}
-                className={`shrink-0 px-3 py-1.5 rounded-card text-xs border transition-colors ${
-                  isSelected
-                    ? 'bg-accent/10 border-accent/20 text-accent'
-                    : 'border-card-border text-text-secondary hover:border-text-secondary'
-                }`}
-              >
-                {isSelected ? '✓ ' : ''}
-                {s.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {((form.strategies || []).filter(
-          (s) => !STRATEGIES.some((known) => known.value === s)
-        ).length > 0) && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {(form.strategies || [])
-              .filter((s) => !STRATEGIES.some((known) => known.value === s))
-              .map((custom) => (
-                <span
-                  key={custom}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-card text-xs border border-accent/30 bg-accent/10 text-accent"
-                >
-                  {getStrategyLabel(custom)}
-                  <button
-                    type="button"
-                    onClick={() => removeStrategy(custom)}
-                    className="hover:text-white transition-colors"
-                    aria-label={`Retirer ${custom}`}
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-          </div>
-        )}
-
-        <div className="flex gap-2 mt-2">
-          <input
-            type="text"
-            value={customStrategyInput}
-            onChange={(e) => setCustomStrategyInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addCustomStrategy();
-              }
-            }}
-            placeholder="Autre approche (ex : scalping)…"
-            className="flex-1 min-w-0 bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70 focus:outline-none focus:border-accent/60"
-          />
-          <button
-            type="button"
-            onClick={addCustomStrategy}
-            className="shrink-0 px-3 py-2 rounded-card text-xs border border-card-border text-text-secondary hover:border-accent/60 hover:text-accent transition-colors whitespace-nowrap"
-          >
-            Ajouter
-          </button>
-        </div>
-        <p className="hidden sm:block text-[10px] text-text-secondary/70 normal-case">
-          Sélectionnez une ou plusieurs approches, ou saisissez le nom de votre
-          stratégie si elle n&apos;apparaît pas dans la liste.
-        </p>
-      </div>
-
-      <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
-        Prix d&apos;entrée
-        <input
-          type="number"
-          step="any"
-          required
-          value={form.entryPrice}
-          onChange={(e) => update({ entryPrice: e.target.value })}
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
-        Prix de sortie
-        <input
-          type="number"
-          step="any"
-          required
-          value={form.exitPrice}
-          onChange={(e) => update({ exitPrice: e.target.value })}
-          className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
-        />
-      </label>
       <label className="flex flex-col gap-1 text-xs font-mono text-text-secondary">
         Quantité
         <input
@@ -239,6 +149,33 @@ export default function TradeForm({ initialTrade, onSubmit, onCancel }) {
           className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary w-full min-w-0"
         />
       </label>
+
+      {conformance && (
+        <div className="col-span-2 flex flex-col gap-1.5 mt-1 rounded-card border border-card-border bg-bg/60 px-3 py-2.5">
+          <p className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wide text-text-secondary">
+            {conformance.issues.length > 0 ? (
+              <ShieldAlert size={14} className="text-amber-500" />
+            ) : (
+              <ShieldCheck size={14} className="text-accent" />
+            )}
+            Conformité · {conformance.issues.length > 0 ? 'réserves' : 'plan respecté'} — {conformance.name}
+          </p>
+          <ul className="flex flex-col gap-1">
+            {conformance.validated.map((text) => (
+              <li key={text} className="flex items-center gap-1.5 text-xs text-text-secondary">
+                <ShieldCheck size={13} className="text-accent shrink-0" />
+                {text}
+              </li>
+            ))}
+            {conformance.issues.map((text) => (
+              <li key={text} className="flex items-center gap-1.5 text-xs text-amber-500">
+                <Shield size={13} className="shrink-0" />
+                {text}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="col-span-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-2">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting} className="w-full sm:w-auto">
           Annuler

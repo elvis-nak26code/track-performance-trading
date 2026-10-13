@@ -58,7 +58,7 @@ export default function CsvImportModal({ onImport, onClose }) {
         <div className="mt-4 max-h-56 overflow-y-auto border border-card-border rounded-card">
           <table className="w-full text-xs font-mono">
             <thead>
-              <tr className="text-left text-text-secondary border-b border-card-border">
+              <tr className="text-left text-text-secondary border-b border-card-border/30">
                 <th className="p-2">Date</th>
                 <th className="p-2">Symbole</th>
                 <th className="p-2">Sens</th>
@@ -67,7 +67,7 @@ export default function CsvImportModal({ onImport, onClose }) {
             </thead>
             <tbody>
               {preview.map((row, i) => (
-                <tr key={i} className="border-b border-card-border/60 last:border-0">
+                <tr key={i} className="border-b border-card-border/20 last:border-0">
                   <td className="p-2">{row.date}</td>
                   <td className="p-2">{row.symbol}</td>
                   <td className="p-2">{row.direction}</td>

@@ -16,8 +16,15 @@ export default function JournalEntryCard({ entry, onDelete }) {
     : entry.text || '';
   const preview = text.length > 100 ? `${text.slice(0, 100)}…` : text;
 
-  // Première capture de l'entrée, si elle en a une.
-  const firstShot = entry.screenshots?.[0];
+  // Première capture affichée dans l'entrée : le premier *bloc image* (l'ordre
+  // d'affichage est codé dans `blocks`, pas dans `screenshots`). Pour les
+  // anciennes entrées sans blocs, on retombe sur la première capture enregistrée.
+  const firstImageBlock = Array.isArray(entry.blocks)
+    ? entry.blocks.find((b) => b.type === 'image')
+    : null;
+  const firstShot = firstImageBlock
+    ? (entry.screenshots || []).find((s) => s.id === firstImageBlock.screenshotId)
+    : entry.screenshots?.[0];
 
   return (
     <div
@@ -118,6 +125,13 @@ JournalEntryCard.propTypes = {
     date: PropTypes.string.isRequired,
     mood: PropTypes.string.isRequired,
     text: PropTypes.string.isRequired,
+    blocks: PropTypes.arrayOf(
+      PropTypes.shape({
+        type: PropTypes.oneOf(['text', 'image']),
+        content: PropTypes.string,
+        screenshotId: PropTypes.string,
+      })
+    ),
     screenshots: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string,

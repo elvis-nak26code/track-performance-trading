@@ -10,7 +10,7 @@ export default function BreakdownTable({ rows, keyLabel }) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm font-mono">
         <thead>
-          <tr className="text-left text-text-secondary text-[11px] uppercase tracking-wide border-b border-card-border">
+          <tr className="text-left text-text-secondary text-[11px] uppercase tracking-wide border-b border-card-border/30">
             <th className="py-2 pr-3 font-normal">{keyLabel}</th>
             <th className="py-2 pr-3 font-normal hidden sm:table-cell">Trades</th>
             <th className="py-2 pr-3 font-normal hidden sm:table-cell">Gains</th>
@@ -25,7 +25,7 @@ export default function BreakdownTable({ rows, keyLabel }) {
           {rows.map((row) => {
             const widthPct = Math.min(100, (Math.abs(row.pnl) / maxAbsPnl) * 100);
             return (
-              <tr key={row.key} className="border-b border-card-border/60 last:border-0">
+              <tr key={row.key} className="border-b border-card-border/20 last:border-0">
                 <td className="py-2 pr-3 text-text-primary whitespace-nowrap">{row.key}</td>
                 <td className="py-2 pr-3 text-text-secondary hidden sm:table-cell">{row.trades}</td>
                 <td className="py-2 pr-3 text-accent hidden sm:table-cell">{row.wins}</td>

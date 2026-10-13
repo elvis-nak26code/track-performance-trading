@@ -102,24 +102,42 @@ export function computeRollingWinRate(trades, windowSize) {
 }
 
 /**
- * Distribution des R : regroupe les trades par tranche de R (ex: -2 à -1, -1 à 0, 0 à 1, etc.)
+ * Distribution des R : regroupe les trades par tranche de R (ex: -2 à -1, -1 à 0, 0 à 1, etc.).
+ * Pour le graphe "divergent" (origine à 0, pertes vers le bas / gains vers le
+ * haut), chaque tranche renvoie :
+ *  - `value` : nombre de trades, signé (négatif pour les tranches de pertes,
+ *    positif pour les tranches de gains) ;
+ *  - `loss` / `gain` : mêmes effectifs mais ne renseignant que le côté perte
+ *    ou le côté gain (l'autre vaut 0), pour dessiner deux barres séparées ;
+ *  - `label` : libellé complet (tooltip) ; `short` : centre de tranche (axe X).
  * @param {Array} trades
- * @returns {Array<{bucket: string, count: number}>}
+ * @returns {Array<{bucket: string, label: string, short: string, count: number, value: number, loss: number, gain: number}>}
  */
 export function computeRDistribution(trades) {
   const buckets = [
-    { label: '< -2R', min: -Infinity, max: -2 },
-    { label: '-2R à -1R', min: -2, max: -1 },
-    { label: '-1R à 0R', min: -1, max: 0 },
-    { label: '0R à 1R', min: 0, max: 1 },
-    { label: '1R à 3R', min: 1, max: 3 },
-    { label: '3R à 5R', min: 3, max: 5 },
-    { label: '> 5R', min: 5, max: Infinity },
+    { label: '< -2R', short: '-3R', loss: true, test: (r) => r < -2 },
+    { label: '-2R à -1R', short: '-1.5R', loss: true, test: (r) => r >= -2 && r < -1 },
+    { label: '-1R à 0R', short: '-0.5R', loss: true, test: (r) => r >= -1 && r < -0.01 },
+    { label: '0R', short: '0R', flat: true, test: (r) => r >= -0.01 && r <= 0.01 },
+    { label: '0R à 1R', short: '+0.5R', gain: true, test: (r) => r > 0.01 && r <= 1 },
+    { label: '1R à 3R', short: '+2R', gain: true, test: (r) => r > 1 && r <= 3 },
+    { label: '3R à 5R', short: '+4R', gain: true, test: (r) => r > 3 && r <= 5 },
+    { label: '> 5R', short: '+6R', gain: true, test: (r) => r > 5 },
   ];
-  return buckets.map((b) => ({
-    bucket: b.label,
-    count: trades.filter((t) => t.r > b.min && t.r <= b.max).length,
-  }));
+  return buckets.map((b) => {
+    const count = trades.filter((t) => b.test(t.r)).length;
+    const isLoss = !!b.loss;
+    return {
+      bucket: b.label,
+      label: b.flat ? '0R (ni gain ni perte)' : b.label,
+      short: b.short,
+      count,
+      flat: !!b.flat,
+      value: isLoss ? -count : count,
+      loss: isLoss ? -count : 0,
+      gain: isLoss ? 0 : count,
+    };
+  });
 }
 
 /**

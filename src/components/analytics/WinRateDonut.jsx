@@ -3,7 +3,7 @@ import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
-function WinRateDonut({ wins, losses }) {
+function WinRateDonut({ wins, losses, fullscreen = false }) {
   const data = [
     { name: 'Gagnants', value: wins },
     { name: 'Perdants', value: losses },
@@ -12,7 +12,7 @@ function WinRateDonut({ wins, losses }) {
   const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
 
   return (
-    <div className="relative h-56">
+    <div className={fullscreen ? 'relative h-[calc(100vh-5rem)]' : 'relative h-56'}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -52,6 +52,7 @@ function WinRateDonut({ wins, losses }) {
 WinRateDonut.propTypes = {
   wins: PropTypes.number.isRequired,
   losses: PropTypes.number.isRequired,
+  fullscreen: PropTypes.bool,
 };
 
 export default memo(WinRateDonut);

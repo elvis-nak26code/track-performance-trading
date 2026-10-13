@@ -126,7 +126,7 @@ function JournalDetail({ id }) {
         <button
           type="button"
           onClick={() => setLightboxShot(shot)}
-          className="text-left"
+          className="text-left js-print-visible"
           title="Agrandir la capture"
         >
           <img
@@ -186,7 +186,7 @@ function JournalDetail({ id }) {
                     <button
                       type="button"
                       onClick={() => setLightboxShot(shot)}
-                      className="text-left"
+                      className="text-left js-print-visible"
                       title="Agrandir la capture"
                     >
                       <img

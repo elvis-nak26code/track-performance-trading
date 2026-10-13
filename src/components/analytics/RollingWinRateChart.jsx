@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { formatDateShort } from '../../utils/dateHelpers';
 
-function RollingWinRateChart({ data10, data20 }) {
+function RollingWinRateChart({ data10, data20, fullscreen = false }) {
   // Fusionne les deux séries par date pour un affichage superposé.
   const merged = useMemo(() => {
     const dateSet = Array.from(new Set([...data10.map((d) => d.date), ...data20.map((d) => d.date)])).sort();
@@ -18,7 +18,7 @@ function RollingWinRateChart({ data10, data20 }) {
   }, [data10, data20]);
 
   return (
-    <div className="h-64">
+    <div className={fullscreen ? 'h-[calc(100vh-5rem)]' : 'h-64'}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={merged} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
           <CartesianGrid stroke="#252925" strokeDasharray="3 3" vertical={false} />
@@ -59,6 +59,7 @@ function RollingWinRateChart({ data10, data20 }) {
 RollingWinRateChart.propTypes = {
   data10: PropTypes.array.isRequired,
   data20: PropTypes.array.isRequired,
+  fullscreen: PropTypes.bool,
 };
 
 export default memo(RollingWinRateChart);

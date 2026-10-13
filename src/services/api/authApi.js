@@ -52,6 +52,19 @@ export function apiGoogleLogin(credential) {
   return request('/auth/google', { method: 'POST', body: JSON.stringify({ credential }) });
 }
 
+// Mot de passe oublié : demande un code de réinitialisation (data.code est
+// renvoyé par l'API en attendant qu'un SMTP soit configuré).
+export function apiForgotPassword(email) {
+  return request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
+}
+
+export function apiResetPassword(email, code, password) {
+  return request('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ email, code, password }),
+  });
+}
+
 export function apiFetchMe() {
   return request('/users/me');
 }

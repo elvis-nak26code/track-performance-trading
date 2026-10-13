@@ -3,6 +3,7 @@
 // laquelle on écrit librement et on dépose des captures d'écran.
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Calendar, NotebookTabs, Smile } from 'lucide-react';
 import { useJournalEntries } from '../hooks/useJournalEntries';
 import { useTrades } from '../hooks/useTrades';
 import { useMarkets } from '../hooks/useMarkets';
@@ -16,6 +17,7 @@ import LinkedTradesSelector from '../components/journal/LinkedTradesSelector';
 import { LoadingState } from '../components/common/LoadingState';
 import { MARKET_CATEGORIES } from '../constants/markets';
 import { htmlToBlocks } from '../utils/journalPage';
+import { MAX_JOURNAL_SCREENSHOTS } from '../services/api/journalApi';
 
 function createEmptyEntry() {
   return {
@@ -49,6 +51,7 @@ export default function JournalEntryForm() {
   const [ready, setReady] = useState(() => !isEditing);
   const [notFound, setNotFound] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [pageHtml, setPageHtml] = useState('');
   const shotsUsedRef = useRef([]);
 
@@ -101,11 +104,24 @@ export default function JournalEntryForm() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setSaveError(null);
+
+    // Vérifie le plafond de captures avant d'envoyer : au-delà de la limite du
+    // backend, les images supplémentaires seraient refusées (et sembleraient
+    // "disparaître"). On prévient au lieu d'échouer silencieusement.
+    const shots = form.screenshots || [];
+    if (shots.length > MAX_JOURNAL_SCREENSHOTS) {
+      setSaveError(
+        `Cette entrée contient ${shots.length} captures, mais le maximum est de ${MAX_JOURNAL_SCREENSHOTS}. Supprimez-en ${shots.length - MAX_JOURNAL_SCREENSHOTS} puis réenregistrez.`
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { blocks } = htmlToBlocks(pageHtml);
       const used = new Set(shotsUsedRef.current);
-      const screenshots = (form.screenshots || []).filter((s) => used.has(s.id));
+      const screenshots = shots.filter((s) => used.has(s.id));
       const text = blocks
         .filter((b) => b.type === 'text')
         .map((b) => b.content)
@@ -113,7 +129,7 @@ export default function JournalEntryForm() {
         .join('\n\n');
 
       // Libère les URL blob des captures déposées puis retirées de la page.
-      (form.screenshots || []).forEach((s) => {
+      shots.forEach((s) => {
         if (s.url?.startsWith('blob:') && !used.has(s.id)) URL.revokeObjectURL(s.url);
       });
 
@@ -126,6 +142,15 @@ export default function JournalEntryForm() {
         const created = await addEntry(payload);
         navigate(`/journal/${created.id}`);
       }
+    } catch (err) {
+      // Plus d'échec silencieux : on affiche la vraie raison (ex : trop
+      // d'images, fichier trop volumineux, entrée de ce serveur en erreur).
+      setSaveError(
+        err?.message?.includes('Erreur réseau')
+          ? "L'entrée n'a pas pu être enregistrée (connexion au serveur impossible). Vos modifications sont restées sur cette page."
+          : `L'entrée n'a pas pu être enregistrée : ${err?.message || 'erreur inconnue'}. Vos saisies sont conservées sur cette page.`
+      );
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setIsSubmitting(false);
     }
@@ -139,47 +164,56 @@ export default function JournalEntryForm() {
         description="Prenez quelques minutes pour analyser votre session à froid : écrivez sur une page blanche, glissez vos captures d'écran, redimensionnez-les."
       />
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <Card>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="flex flex-col gap-1 text-xs uppercase tracking-wide text-text-secondary font-mono">
-              Indice concerné
-              <input
-                required
-                list="instruments-list"
-                value={form.instrument}
-                onChange={(e) => update({ instrument: e.target.value })}
-                placeholder="Choisir ou saisir un instrument…"
-                className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary font-mono focus:outline-none focus:border-accent/60"
-              />
-              <datalist id="instruments-list">
-                {marketsByCategory.map((cat) =>
-                  cat.options.map((m) => (
-                    <option
-                      key={m.symbol}
-                      value={m.symbol}
-                      label={`${m.symbol} — ${m.name}`}
-                    />
-                  ))
-                )}
-              </datalist>
-            </label>
-            <label className="flex flex-col gap-1 text-xs uppercase tracking-wide text-text-secondary font-mono">
-              Date
+        {saveError && (
+          <div className="rounded-card border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+            {saveError}
+          </div>
+        )}
+        <div className="max-w-3xl mx-auto w-full flex flex-col gap-4">
+          <div>
+            <p className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wide text-text-secondary mb-1.5">
+              <NotebookTabs size={13} />
+              {isEditing ? 'Modification' : 'Nouvelle entrée'} de journal
+            </p>
+            <input
+              required
+              list="instruments-list"
+              value={form.instrument}
+              onChange={(e) => update({ instrument: e.target.value })}
+              placeholder="Titre de l'analyse (ex : PAIR.USD — session du soir)…"
+              className="w-full bg-transparent text-2xl sm:text-3xl font-bold text-text-primary placeholder:text-text-secondary/40 focus:outline-none pt-0.5"
+            />
+            <datalist id="instruments-list">
+              {marketsByCategory.map((cat) =>
+                cat.options.map((m) => (
+                  <option
+                    key={m.symbol}
+                    value={m.symbol}
+                    label={`${m.symbol} — ${m.name}`}
+                  />
+                ))
+              )}
+            </datalist>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-2 h-9 px-3 rounded-lg border border-card-border bg-card text-xs font-mono text-text-secondary cursor-pointer">
+              <Calendar size={14} className="text-accent" />
               <input
                 type="date"
                 required
                 value={form.date}
                 onChange={(e) => update({ date: e.target.value })}
-                className="bg-bg border border-card-border rounded-card px-3 py-2 text-sm text-text-primary font-mono focus:outline-none focus:border-accent/60"
+                className="bg-transparent w-auto text-text-primary focus:outline-none [color-scheme:light]"
               />
             </label>
-          </div>
-
-          <div className="mt-4">
-            <p className="text-xs uppercase tracking-wide text-text-secondary font-mono mb-2">Humeur</p>
+            <span className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-card-border bg-card text-xs font-mono text-text-secondary">
+              <Smile size={14} className="text-accent" />
+              Humeur
+            </span>
             <MoodSelector value={form.mood} onChange={(mood) => update({ mood })} />
           </div>
-        </Card>
+        </div>
 
         <JournalPageEditor
           key={isEditing ? id : 'new'}
@@ -198,7 +232,11 @@ export default function JournalEntryForm() {
             selectedIds={form.linkedTradeIds || []}
             onChange={(linkedTradeIds) => update({ linkedTradeIds })}
           />
-          <div className="flex justify-end gap-2 mt-4">
+          <div className="flex flex-wrap justify-between items-center gap-2 mt-4 no-print">
+          <span className="text-[11px] font-mono text-text-secondary/70">
+            {(form.screenshots || []).length} / {MAX_JOURNAL_SCREENSHOTS} captures
+          </span>
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="secondary" onClick={() => navigate(-1)} disabled={isSubmitting}>
               Annuler
             </Button>
@@ -206,6 +244,7 @@ export default function JournalEntryForm() {
               {isSubmitting ? 'Enregistrement…' : "Enregistrer l'entrée"}
             </Button>
           </div>
+        </div>
         </Card>
       </form>
     </div>

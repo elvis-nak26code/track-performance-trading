@@ -11,6 +11,16 @@ import { getSubscriptionStatus } from '../services/api/subscriptionApi';
 import SubscriptionModal from '../components/subscription/SubscriptionModal';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+
+/*
+ * DÉSACTIVATION TEMPORAIRE DES TARIFS : tant que FREE_ACCESS=true, la
+ * plateforme fonctionne gratuitement — aucun blocage d'écriture, aucune
+ * fenêtre d'invitation au paiement, abonnement affiché "Accès complet".
+ * Pour réactiver la facturation : remettre à false, la page /tarifs et les
+ * gardes (requirePlan / isExpired) reprendront alors automatiquement vie.
+ */
+const FREE_ACCESS = true;
+
 // Rafraîchit le statut serveur régulièrement pour que le nombre de jours
 // restants affiché reste exact sans recharger la page (le calcul local a déjà
 // l'heure, mais le serveur reste la source de vérité en mode réel).
@@ -50,6 +60,8 @@ export function PlanProvider({ children }) {
   // Écoute le custom event dispatché par authToken.js quand le backend
   // renvoie un 403 PLAN_EXPIRED sur un appel d'écriture.
   useEffect(() => {
+    // Désactivé en accès gratuit : plus aucune invitation au paiement.
+    if (FREE_ACCESS) return undefined;
     const handler = () => setModal((prev) => ({ ...prev, open: true }));
     window.addEventListener('plan:expired', handler);
     return () => window.removeEventListener('plan:expired', handler);
@@ -58,19 +70,22 @@ export function PlanProvider({ children }) {
   const planId = user?.plan || 'essai';
   const planStartedAt = user?.planStartedAt || new Date().toISOString().slice(0, 10);
   // Accès à vie : le serveur renvoie daysRemaining = null (affiché « ∞ »).
-  const isLifetime = serverStatus ? serverStatus.isLifetime : planId === 'lifetime';
+  // En accès gratuit, l'abonnement n'expire jamais.
+  const isLifetime = FREE_ACCESS ? true : serverStatus ? serverStatus.isLifetime : planId === 'lifetime';
   const liveDaysRemaining = serverStatus ? serverStatus.daysRemaining : computeDaysRemaining(planId, planStartedAt);
   const daysRemaining = isLifetime ? null : liveDaysRemaining;
-  const isExpired = isLifetime ? false : serverStatus ? serverStatus.isExpired : localIsExpired(planId, planStartedAt);
+  const isExpired = FREE_ACCESS ? false : isLifetime ? false : serverStatus ? serverStatus.isExpired : localIsExpired(planId, planStartedAt);
   const planLabel = getPlan(planId).label;
 
   /**
    * Appelé avant toute action d'écriture (nouveau trade, entrée journal…).
    * Renvoie `true` si l'action est autorisée, `false` si le forfait est expiré
-   * (dans ce cas, le modal s'ouvre automatiquement).
+   * (dans ce cas, le modal s'ouvre automatiquement). En accès gratuit, toute
+   * action est toujours autorisée.
    */
   const requirePlan = useCallback(
     (actionLabel) => {
+      if (FREE_ACCESS) return true;
       if (!isExpired) return true;
       setModal({ open: true, action: actionLabel || '' });
       return false;
@@ -88,7 +103,8 @@ export function PlanProvider({ children }) {
   return (
     <PlanContext.Provider value={value}>
       {children}
-      <SubscriptionModal open={modal.open} action={modal.action} onClose={closeModal} />
+      {/* Modal d'invitation au paiement désactivé en accès gratuit (FREE_ACCESS). */}
+      {!FREE_ACCESS && <SubscriptionModal open={modal.open} action={modal.action} onClose={closeModal} />}
     </PlanContext.Provider>
   );
 }

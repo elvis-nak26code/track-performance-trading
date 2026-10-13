@@ -51,6 +51,44 @@ function simpleHash(value) {
   return String(hash);
 }
 
+// Clés de cache locales liées à UN compte (données, préférences, checklist).
+// Purger ces clés au logout garantit qu'un nouveau compte ne "revit" pas les
+// données du précédent (marchés personnalisés, stratégies mock, settings…).
+// Le thème et l'état de la sidebar sont des préférences d'affichage
+// machine, conservées par défaut pour ne pas déstabiliser l'utilisateur.
+const ACCOUNT_CACHE_KEYS = [
+  'blacktrading_strategies_mock',
+  'journal_trading_custom_markets',
+  'journal_trading_deleted_markets',
+  'journal_trading_settings',
+];
+
+function clearAccountCaches() {
+  const removals = [
+    STORAGE_KEY,
+    USERS_STORAGE_KEY,
+    ...ACCOUNT_CACHE_KEYS,
+  ];
+  for (const key of removals) {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // localStorage indisponible : on ignore
+    }
+  }
+  // Checklist pré-trade : clé par stratégie, invariable quel que soit le compte.
+  try {
+    const allKeys = Object.keys(localStorage);
+    for (const key of allKeys) {
+      if (key.startsWith('blacktrading_checklist_checked_')) {
+        localStorage.removeItem(key);
+      }
+    }
+  } catch {
+    // localStorage indisponible : on ignore
+  }
+}
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null); // { user, token }
   const [isLoading, setIsLoading] = useState(true);
@@ -69,7 +107,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+    clearAccountCaches();
     setSession(null);
     // Après déconnexion, on revient toujours sur la page de connexion
     // (jamais sur la landing page).
@@ -259,6 +297,7 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user: session?.user || null,
+      token: session?.token || null,
       isLoading,
       error,
       login,

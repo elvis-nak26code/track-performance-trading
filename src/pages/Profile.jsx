@@ -14,6 +14,9 @@ import Button from '../components/common/Button';
 import { getPlan, computeDaysRemaining } from '../constants/plans';
 import { redeemPromo } from '../services/api/subscriptionApi';
 
+// DÉSACTIVATION TEMPORAIRE DES TARIFS : accès gratuit (voir PlanContext).
+const FREE_ACCESS = true;
+
 export default function Profile() {
   const { user, refreshUser } = useAuth();
   const { settings, updateSettings } = useSettings();
@@ -87,33 +90,57 @@ export default function Profile() {
         </Card>
 
         <Card title="Forfait en cours">
-          <div className="flex items-center justify-between mb-3">
+          {FREE_ACCESS ? (
             <div>
-              <p className="text-text-primary font-medium text-lg">{plan.label}</p>
-              <p className="text-sm text-text-secondary">{plan.tagline}</p>
-            </div>
-            {plan.priceUsd > 0 && (
-              <div className="text-right">
-                <p className="font-mono text-text-primary">${plan.priceUsd}</p>
-                <p className="text-xs text-text-secondary">/{plan.period}</p>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="h-10 w-10 rounded-card bg-accent/20 text-accent flex items-center justify-center text-lg">✓</span>
+                <div>
+                  <p className="text-text-primary font-medium text-lg">Accès complet</p>
+                  <p className="text-sm text-text-secondary">
+                    La plateforme est entièrement gratuite pour le moment.
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
-          <div
-            className={`rounded-card border p-3 flex items-center justify-between ${
-              isExpiringSoon ? 'border-danger/20 bg-danger/10' : 'border-card-border bg-bg'
-            }`}
-          >
-            <span className="text-sm text-text-secondary">Jours restants</span>
-            <span className={`font-mono text-xl font-semibold ${isExpiringSoon ? 'text-danger' : 'text-accent'}`}>
-              {displayDays}
-            </span>
-          </div>
-          <Link to="/tarifs">
-            <Button variant="secondary" className="w-full mt-3">
-              Changer de forfait
-            </Button>
-          </Link>
+              <div className="rounded-card border border-accent/20 bg-accent/10 p-3 text-sm text-text-secondary">
+                La partie « Tarifs » est désactivée : vous pouvez utiliser toutes les fonctionnalités
+                (journal, track record, analytics, stratégie) sans limite ni abonnement.
+              </div>
+              {/* Bouton « Changer de forfait » (page /tarifs) en commentaire : accès gratuit.
+                  <Link to="/tarifs">
+                    <Button variant="secondary" className="w-full mt-3">Changer de forfait</Button>
+                  </Link> */}
+            </div>
+          ) : (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-text-primary font-medium text-lg">{plan.label}</p>
+                  <p className="text-sm text-text-secondary">{plan.tagline}</p>
+                </div>
+                {plan.priceUsd > 0 && (
+                  <div className="text-right">
+                    <p className="font-mono text-text-primary">${plan.priceUsd}</p>
+                    <p className="text-xs text-text-secondary">/{plan.period}</p>
+                  </div>
+                )}
+              </div>
+              <div
+                className={`rounded-card border p-3 flex items-center justify-between ${
+                  isExpiringSoon ? 'border-danger/20 bg-danger/10' : 'border-card-border bg-bg'
+                }`}
+              >
+                <span className="text-sm text-text-secondary">Jours restants</span>
+                <span className={`font-mono text-xl font-semibold ${isExpiringSoon ? 'text-danger' : 'text-accent'}`}>
+                  {displayDays}
+                </span>
+              </div>
+              <Link to="/tarifs">
+                <Button variant="secondary" className="w-full mt-3">
+                  Changer de forfait
+                </Button>
+              </Link>
+            </div>
+          )}
         </Card>
       </div>
 
@@ -136,6 +163,39 @@ export default function Profile() {
         {promoMsg && (
           <p className={`mt-3 text-sm ${promoMsg.type === 'ok' ? 'text-accent' : 'text-danger'}`}>{promoMsg.text}</p>
         )}
+      </Card>
+
+      <Card title="Affichage & zoom" className="mb-4">
+        <p className="text-sm text-text-secondary mb-4">
+          Augmentez ou réduisez la taille de toute l&apos;interface pour l&apos;adapter à votre
+          écran. Le réglage est mémorisé sur cet appareil.
+        </p>
+        <div className="flex items-center gap-3">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => updateSettings({ uiZoom: Math.max(70, Number(settings.uiZoom || 100) - 10) })}
+            aria-label="Réduire le zoom"
+          >
+            −
+          </Button>
+          <span className="font-mono text-lg text-text-primary tabular-nums">{settings.uiZoom || 100}%</span>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => updateSettings({ uiZoom: Math.min(150, Number(settings.uiZoom || 100) + 10) })}
+            aria-label="Augmenter le zoom"
+          >
+            +
+          </Button>
+          <button
+            type="button"
+            onClick={() => updateSettings({ uiZoom: 100 })}
+            className="text-xs font-mono text-text-secondary hover:text-accent ml-2"
+          >
+            Réinitialiser (100 %)
+          </button>
+        </div>
       </Card>
 
       <Card title="Paramètres de calcul">

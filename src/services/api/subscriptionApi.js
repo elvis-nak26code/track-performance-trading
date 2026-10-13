@@ -65,7 +65,11 @@ export function getSubscriptionStatus() {
 
 // Initie le paiement d'un forfait : { mode, plan, payUrl } en cas de succès.
 // Rejette avec code PAYMENT_NOT_CONFIGURED quand Genius Pay n'est pas branché.
-export function createCheckout(planId) {
+// `paymentMethod` est optionnel : laissé vide, Genius Pay affiche sa page de
+// checkout hébergée où le client choisit son opérateur (recommandé pour le
+// Burkina Faso). Sinon : 'orange_money' | 'mtn_money' | 'moov_money' | 'wave'
+// | 'card' ; `phone` (format international) est requis pour le mobile money.
+export function createCheckout(planId, { phone = '', paymentMethod = '' } = {}) {
   if (USE_MOCK) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -79,7 +83,10 @@ export function createCheckout(planId) {
       }, 400);
     });
   }
-  return httpRequest('/subscriptions/checkout', { method: 'POST', body: JSON.stringify({ planId }) });
+  return httpRequest('/subscriptions/checkout', {
+    method: 'POST',
+    body: JSON.stringify({ planId, phone: phone.trim(), paymentMethod }),
+  });
 }
 
 // Applique un code promo (1 mois gratuit ou accès à vie) sur le compte courant.

@@ -8,11 +8,17 @@ const VARIANT_CLASSES = {
   ghost: 'bg-transparent text-text-secondary hover:text-text-primary',
 };
 
+const SIZE_CLASSES = {
+  sm: 'px-2.5 py-1.5 text-xs',
+  md: 'px-3 py-2 text-sm',
+};
+
 export default function Button({
   children,
   onClick,
   type = 'button',
   variant = 'primary',
+  size = 'md',
   className = '',
   disabled = false,
   loading = false,
@@ -23,7 +29,7 @@ export default function Button({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-card px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${VARIANT_CLASSES[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-card font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
     >
       {loading ? (
         <span className="flex items-center gap-1.5">
@@ -45,6 +51,7 @@ Button.propTypes = {
   onClick: PropTypes.func,
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
   variant: PropTypes.oneOf(['primary', 'secondary', 'danger', 'ghost']),
+  size: PropTypes.oneOf(['sm', 'md']),
   className: PropTypes.string,
   disabled: PropTypes.bool,
   loading: PropTypes.bool,

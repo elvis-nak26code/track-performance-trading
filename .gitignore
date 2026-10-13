@@ -1,5 +1,19 @@
-node_modules
-dist
+# Builds et dépendances — jamais poussés au dépôt (déploiement Render léger)
+node_modules/
+dist/
+dist-desktop/
+.vite/
+
+# Installateurs / fichiers lourds (servis via GitHub Releases, pas dans le site)
+*.exe
+*.zip
+*.AppImage
+*.deb
+*.dmg
+
+# Sécurité / environnement
+*.p12
+*.pfx
+*.key
+*.cer
 .env
-.env.local
-*.log

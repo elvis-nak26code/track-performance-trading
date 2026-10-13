@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDateShort } from '../../utils/dateHelpers';
 
-function EquityCurveChart({ data }) {
+function EquityCurveChart({ data, fullscreen = false }) {
   return (
-    <div className="h-72">
+    <div className={fullscreen ? 'h-[calc(100vh-5rem)]' : 'h-72'}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
           <defs>
@@ -49,6 +49,7 @@ function EquityCurveChart({ data }) {
 
 EquityCurveChart.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({ date: PropTypes.string, equity: PropTypes.number })).isRequired,
+  fullscreen: PropTypes.bool,
 };
 
 export default memo(EquityCurveChart);

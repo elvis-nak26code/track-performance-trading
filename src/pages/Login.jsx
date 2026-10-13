@@ -4,14 +4,21 @@
 //   Identity Services (@react-oauth/google). Le bouton n'apparaît que si
 //   VITE_GOOGLE_CLIENT_ID est renseigné dans .env.
 import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/common/Button';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+// Sur la version desktop, l'origine http://127.0.0.1:43127 n'est pas une
+// origine JavaScript autorisée pour le Client ID Google : le bouton Google
+// y est donc masqué (seul e-mail / mot de passe est proposé).
+const IS_DESKTOP = import.meta.env.VITE_DESKTOP === 'true';
+const SHOW_GOOGLE = GOOGLE_CLIENT_ID && !IS_DESKTOP;
 
 export default function Login() {
   const { login, register, loginWithGoogleCredential } = useAuth();
+  const location = useLocation();
   const [mode, setMode] = useState('login'); // 'login' | 'signup'
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -49,7 +56,13 @@ export default function Login() {
             : 'Créez un compte pour commencer à suivre vos trades.'}
         </p>
 
-        {GOOGLE_CLIENT_ID ? (
+        {location.state?.resetDone && (
+          <p className="text-sm text-accent mb-4">
+            Mot de passe réinitialisé. Connectez-vous avec votre nouveau mot de passe.
+          </p>
+        )}
+
+        {SHOW_GOOGLE ? (
           <div className="mb-4">
             <GoogleLogin
              onSuccess={(credentialResponse) => {
@@ -72,8 +85,13 @@ export default function Login() {
           </div>
         ) : (
           <p className="text-[11px] text-text-secondary/70 mb-4 leading-relaxed">
-            Connexion avec Google désactivée : ajoutez votre <code className="font-mono">VITE_GOOGLE_CLIENT_ID</code>{' '}
-            dans <code className="font-mono">.env</code> pour l&apos;activer (voir <code className="font-mono">.env.example</code>).
+            {IS_DESKTOP ? (
+              <>Connexion avec Google non disponible sur l&apos;application de bureau : utilisez
+              <span className="text-text-secondary font-mono"> e-mail / mot de passe</span>.</>
+            ) : (
+              <>Connexion avec Google désactivée : ajoutez votre <code className="font-mono">VITE_GOOGLE_CLIENT_ID</code>{' '}
+              dans <code className="font-mono">.env</code> pour l&apos;activer (voir <code className="font-mono">.env.example</code>).</>
+            )}
           </p>
         )}
 
@@ -126,6 +144,14 @@ export default function Login() {
               'Créer mon compte'
             )}
           </Button>
+
+          {mode === 'login' && (
+            <p className="text-center mt-1">
+              <Link to="/mot-de-passe-oublie" className="text-xs text-accent hover:text-accent-soft">
+                Mot de passe oublié ?
+              </Link>
+            </p>
+          )}
         </form>
 
         <p className="text-xs text-text-secondary text-center mt-4">

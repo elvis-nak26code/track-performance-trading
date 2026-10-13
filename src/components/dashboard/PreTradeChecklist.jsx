@@ -1,85 +1,105 @@
-// Checklist pré-trade personnalisable, cochable avant de logger un trade.
-// L'état est conservé en mémoire (React state) le temps de la session.
-import { useState } from 'react';
-
-const DEFAULT_ITEMS = [
-  'Le contexte de marché correspond à mon plan de trading',
-  "La zone d'entrée est claire, sans ambiguïté",
-  'Le ratio risque/récompense est acceptable (minimum 1:2)',
-  'Ma taille de position respecte mon risque maximum par trade',
-  'Je ne suis pas en train de me refaire après une perte',
-  'Je suis calme et concentré, pas sous le coup de l\'émotion',
-];
+// Checklist pré-trade du tableau de bord : dérivée de la stratégie active
+// (champ checklistItems). Les cases cochées sont persistées par jour en
+// localStorage ; chaque point peut être activé/désactivé depuis la page
+// Stratégies.
+import { Link } from 'react-router-dom';
+import { Crosshair } from 'lucide-react';
+import { useStrategy } from '../../hooks/useStrategy';
 
 export default function PreTradeChecklist() {
-  const [items, setItems] = useState(DEFAULT_ITEMS.map((label, i) => ({ id: i, label, checked: false })));
-  const [newItem, setNewItem] = useState('');
+  const {
+    activeStrategy,
+    checklist,
+    checkedItems,
+    toggleChecklistItem,
+    resetChecklist,
+    isLoading,
+  } = useStrategy();
 
-  function toggleItem(id) {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item)));
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-2">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-7 rounded-lg bg-bg/70 animate-pulse" />
+        ))}
+      </div>
+    );
   }
 
-  function addItem(e) {
-    e.preventDefault();
-    if (!newItem.trim()) return;
-    setItems((prev) => [...prev, { id: Date.now(), label: newItem.trim(), checked: false }]);
-    setNewItem('');
+  if (!activeStrategy) {
+    return (
+      <div className="text-center py-6 flex flex-col items-center gap-3">
+        <span className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center">
+          <Crosshair size={18} />
+        </span>
+        <p className="text-sm text-text-secondary max-w-xs mx-auto">
+          Aucune stratégie active. Définissez vos règles et votre checklist pré-trade pour passer
+          vos trades en toute conformité.
+        </p>
+        <Link
+          to="/strategies"
+          className="text-sm font-mono text-accent hover:text-accent-soft"
+        >
+          Créer ma stratégie →
+        </Link>
+      </div>
+    );
   }
 
-  function removeItem(id) {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  if (checklist.length === 0) {
+    return (
+      <div className="text-center py-6">
+        <p className="text-sm text-text-secondary">
+          La stratégie « {activeStrategy.name} » n'a pas de point de contrôle actif.
+        </p>
+        <Link to="/strategies" className="text-sm font-mono text-accent hover:text-accent-soft inline-block mt-2">
+          Personnaliser la checklist →
+        </Link>
+      </div>
+    );
   }
 
-  const checkedCount = items.filter((i) => i.checked).length;
+  const checkedCount = checklist.filter((i) => checkedItems.has(i.id)).length;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs text-text-secondary font-mono">
-          {checkedCount}/{items.length} points validés
+          {checkedCount}/{checklist.length} points validés
         </p>
         <button
           type="button"
-          onClick={() => setItems((prev) => prev.map((i) => ({ ...i, checked: false })))}
+          onClick={resetChecklist}
           className="text-xs font-mono text-text-secondary hover:text-accent"
         >
           Réinitialiser
         </button>
       </div>
       <ul className="flex flex-col gap-2 mb-3">
-        {items.map((item) => (
-          <li key={item.id} className="flex items-center gap-2 group">
-            <input
-              type="checkbox"
-              checked={item.checked}
-              onChange={() => toggleItem(item.id)}
-              className="accent-accent w-4 h-4"
-            />
-            <span className={`text-sm flex-1 ${item.checked ? 'text-text-secondary line-through' : 'text-text-primary'}`}>
-              {item.label}
-            </span>
-            <button
-              type="button"
-              onClick={() => removeItem(item.id)}
-              className="text-text-secondary hover:text-danger opacity-0 group-hover:opacity-100 text-xs"
-            >
-              ×
-            </button>
-          </li>
-        ))}
+        {checklist.map((item) => {
+          const checked = checkedItems.has(item.id);
+          return (
+            <li key={item.id} className="flex items-center gap-2 group">
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => toggleChecklistItem(item.id)}
+                className="accent-accent w-4 h-4"
+              />
+              <span className={`text-sm flex-1 ${checked ? 'text-text-secondary line-through' : 'text-text-primary'}`}>
+                {item.label}
+              </span>
+            </li>
+          );
+        })}
       </ul>
-      <form onSubmit={addItem} className="flex gap-2">
-        <input
-          type="text"
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          placeholder="Ajouter un point de contrôle…"
-          className="flex-1 bg-bg border border-card-border rounded-card px-3 py-1.5 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-accent/60"
-        />
-        <button type="submit" className="text-sm font-mono text-accent hover:text-accent-soft px-2">
-          Ajouter
-        </button>
-      </form>
+      <Link
+        to="/strategies"
+        className="text-xs font-mono text-text-secondary hover:text-accent"
+        title={`Stratégie active : ${activeStrategy.name}`}
+      >
+        Checklist de « {activeStrategy.name} » · modifier →
+      </Link>
     </div>
   );
 }

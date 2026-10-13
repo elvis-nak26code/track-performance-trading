@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 import { formatDateShort } from '../../utils/dateHelpers';
 
-function PnlByDayBarChart({ trades }) {
+function PnlByDayBarChart({ trades, fullscreen = false }) {
   // Agrège le P&L par jour (un trade a un P&L, un jour peut contenir plusieurs trades).
   const data = useMemo(() => {
     const byDay = new Map();
@@ -20,7 +20,7 @@ function PnlByDayBarChart({ trades }) {
   }, [trades]);
 
   return (
-    <div className="h-64">
+    <div className={fullscreen ? 'h-[calc(100vh-5rem)]' : 'h-64'}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
           <CartesianGrid stroke="#252925" strokeDasharray="3 3" vertical={false} />
@@ -63,6 +63,7 @@ function PnlByDayBarChart({ trades }) {
 
 PnlByDayBarChart.propTypes = {
   trades: PropTypes.array.isRequired,
+  fullscreen: PropTypes.bool,
 };
 
 export default memo(PnlByDayBarChart);

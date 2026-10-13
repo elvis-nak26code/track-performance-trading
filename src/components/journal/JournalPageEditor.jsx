@@ -51,6 +51,7 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
 
   const [screenshots, setScreenshots] = useState(initialScreenshots || []);
   const [selectedShot, setSelectedShot] = useState(null);
+  const [selectedShotId, setSelectedShotId] = useState(null);
   const [activeFormats, setActiveFormats] = useState({ bold: false, italic: false, underline: false });
 
   const notify = useCallback(
@@ -163,6 +164,41 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
     notify(screenshotsRef.current);
   }
 
+  // Découpe le paragraphe contenant le point d'insertion afin que l'image
+  // (toujours dans son propre <p>) reste un enfant direct de la page, avec
+  // un nouveau <p> juste dessous : soit le texte qui suivait le curseur, soit
+  // une ligne vide pour continuer à écrire. Renvoie { tail } (le <p> après
+  // l'image) ou null si l'insertion ne se fait pas dans un paragraphe.
+  function splitParagraphAtRange(range, insertedNode) {
+    const page = pageRef.current;
+    const startNode = range.startContainer;
+    const startEl = startNode.nodeType === Node.TEXT_NODE ? startNode.parentElement : startNode;
+    const scopeP = startEl?.closest?.('p');
+    if (!scopeP || scopeP === page || !scopeP.parentNode) return null;
+
+    const endRange = document.createRange();
+    endRange.setStart(startNode, range.startOffset);
+    endRange.setEnd(scopeP, scopeP.childNodes.length);
+
+    const remainder = endRange.extractContents();
+    scopeP.after(insertedNode);
+
+    const tail = document.createElement('p');
+    if (remainder.childNodes.length) {
+      tail.appendChild(remainder);
+    } else {
+      tail.innerHTML = '<br>';
+    }
+    insertedNode.after(tail);
+
+    // Le paragraphe d'origine est devenu vide (curseur placé à son début) : on
+    // le retire pour éviter une ligne fantôme au-dessus de l'image.
+    if (!scopeP.hasChildNodes() && !scopeP.textContent.trim()) {
+      scopeP.remove();
+    }
+    return { tail };
+  }
+
   function insertImage(file, range) {
     if (!file) return;
 
@@ -177,23 +213,41 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
 
     const p = document.createElement('p');
     p.appendChild(img);
+    const page = pageRef.current;
+    if (!page) return;
 
     if (range) {
       const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-      range.deleteContents();
-      range.insertNode(p);
-      range.setStartAfter(p);
-      range.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    } else {
-      pageRef.current.appendChild(p);
-    }
+      const placed = splitParagraphAtRange(range, p);
 
-    // Toujours laisser un paragraphe sous l'image pour écrire dessous.
-    if (!p.nextElementSibling && p.parentNode === pageRef.current) {
+      if (placed) {
+        // Le caret est placé dès le début de la ligne sous l'image : on peut
+        // immédiatement continuer à saisir en dessous.
+        sel.removeAllRanges();
+        const caret = document.createRange();
+        caret.setStart(placed.tail, 0);
+        caret.collapse(true);
+        sel.addRange(caret);
+      } else {
+        sel.removeAllRanges();
+        sel.addRange(range);
+        range.deleteContents();
+        range.insertNode(p);
+        // Toujours laisser un paragraphe sous l'image pour écrire dessous.
+        if (!p.nextElementSibling && p.parentNode === page) {
+          const blank = document.createElement('p');
+          blank.innerHTML = '<br>';
+          p.after(blank);
+        }
+        const target = p.nextElementSibling || p;
+        const caret = document.createRange();
+        caret.setStart(target, 0);
+        caret.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(caret);
+      }
+    } else {
+      page.appendChild(p);
       const blank = document.createElement('p');
       blank.innerHTML = '<br>';
       p.after(blank);
@@ -229,7 +283,9 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
       sel.removeAllRanges();
       sel.addRange(range);
     }
-    files.forEach((file) => insertImage(file, range));
+    // Le range devient invalide après la première insertion : seules la
+    // première image est placée au point visé, les suivantes s'empilent dessous.
+    files.forEach((file, index) => insertImage(file, index === 0 ? range : null));
   }
 
   function handlePaste(e) {
@@ -238,7 +294,8 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
     );
     if (files.length) {
       e.preventDefault();
-      files.forEach((file) => insertImage(file, getCurrentRange()));
+      const range = getCurrentRange();
+      files.forEach((file, index) => insertImage(file, index === 0 ? range : null));
     }
   }
 
@@ -249,6 +306,7 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
       selectedElRef.current.classList.remove('journal-img-selected');
       selectedElRef.current = null;
     }
+    setSelectedShotId(null);
     setSelectedShot(null);
   }
 
@@ -264,6 +322,7 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
         selectedElRef.current = img;
         img.classList.add('journal-img-selected');
         const rect = img.getBoundingClientRect();
+        setSelectedShotId(img.getAttribute('data-shot-id'));
         setSelectedShot({ top: rect.top, right: rect.right });
       }
     } else {
@@ -352,24 +411,33 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
     notify(screenshotsRef.current);
   }
 
+  // Met à jour la légende d'une capture (affichée sous l'image dans le détail).
+  function setShotCaption(id, caption) {
+    const next = (screenshotsRef.current || []).map((s) => (s.id === id ? { ...s, caption } : s));
+    screenshotsRef.current = next;
+    setScreenshots(next);
+  }
+
+  const selectedShotCaption = screenshots.find((s) => s.id === selectedShotId)?.caption || '';
+
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+      <div className="flex flex-col items-center justify-center gap-2 mb-3 text-center">
         <p className="flex items-center gap-2 text-xs font-mono text-text-secondary uppercase tracking-wide">
           <FileText size={14} />
           Analyse libre
         </p>
-        <div className="flex items-center gap-2 sm:ml-auto text-xs font-mono">
+        <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-mono">
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-card border border-card-border bg-card text-text-secondary hover:text-accent hover:border-accent/40 transition-colors"
+            className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-card-border bg-card text-text-secondary hover:text-accent hover:border-accent/40 transition-colors"
             title="Insérer une image à l'endroit du curseur"
           >
             <ImagePlus size={14} />
             Ajouter une image
           </button>
-          <span className="hidden lg:flex items-center gap-1.5 text-[11px] text-text-secondary/70">
+          <span className="flex items-center gap-1.5 text-[11px] text-text-secondary/70">
             <Move size={12} />
             Glissez vos captures sur la page
           </span>
@@ -377,8 +445,7 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
       </div>
 
       {/* Barre de mise en forme : s'applique au texte sélectionné */}
-      <div className="flex items-center gap-1.5 mb-2 bg-card border border-card-border rounded-lg p-1.5 max-w-4xl mx-auto text-xs font-mono">
-        <span className="px-2 text-text-secondary/70 uppercase tracking-wide hidden sm:inline">Mise en forme</span>
+      <div className="sticky top-3 z-20 flex items-center gap-1.5 mb-3 bg-card/95 backdrop-blur border border-card-border rounded-lg p-1.5 max-w-3xl mx-auto text-xs font-mono shadow-sm">
         {FORMAT_COMMANDS.map(({ command, label, icon: Icon, shortcut }) => (
           <button
             key={command}
@@ -402,7 +469,7 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
       </div>
 
       <div
-        className="journal-paper rounded-lg w-full max-w-4xl mx-auto"
+        className="journal-paper rounded-xl w-full max-w-3xl mx-auto"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
@@ -421,24 +488,35 @@ export default function JournalPageEditor({ initialBlocks, initialScreenshots, o
         />
       </div>
 
-      {/* Pastille de suppression de l'image sélectionnée (suit l'image) */}
+      {/* Barre d'outils de l'image sélectionnée : légende + suppression. */}
       {selectedShot && (
-        <button
-          type="button"
+        <div
+          className="journal-img-bar no-print"
           onMouseDown={(e) => e.preventDefault()}
-          onClick={deleteSelectedImage}
-          title="Supprimer cette image"
-          aria-label="Supprimer l'image sélectionnée"
-          className="journal-img-delete no-print"
           style={{
-            top: selectedShot.top - 46,
+            top: selectedShot.top - 52,
             left: selectedShot.right,
             transform: 'translate(calc(-100% - 8px), 0)',
           }}
         >
-          <Trash2 size={14} />
-          Supprimer
-        </button>
+          <input
+            type="text"
+            value={selectedShotCaption}
+            onChange={(e) => setShotCaption(selectedShotId, e.target.value)}
+            placeholder="Légende de la capture…"
+            aria-label="Légende de la capture"
+            className="journal-img-caption-input"
+          />
+          <button
+            type="button"
+            onClick={deleteSelectedImage}
+            title="Supprimer cette image"
+            aria-label="Supprimer l'image sélectionnée"
+            className="journal-img-bar-delete"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       )}
 
       <input

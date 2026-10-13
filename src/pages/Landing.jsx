@@ -6,7 +6,19 @@
 //   exactement ces noms : dashboard.png, journal.png, analytics.png,
 //   calendar.png. Tant qu'un fichier est absent, un placeholder élégant
 //   s'affiche automatiquement à la place (aucune erreur console visible).
+//
+// — TÉLÉCHARGEMENTS : depuis le passage sous Render (hébergement web), le
+//   site ne sert plus les binaires (trop lourds, ~650 Mo). Les installateurs
+//   sont publiés dans une GitHub Release « latest » du dépôt desktop ; les
+//   URLs viennent de src/config/downloads.js (une seule ligne à renseigner :
+//   le nom du dépôt). Tant que le dépôt n'est pas défini, une note de contact
+//   s'affiche à la place des liens.
 import { useEffect, useRef, useState } from 'react';
+import {
+  DESKTOP_DOWNLOADS,
+  GITHUB_DESKTOP_REPO,
+  PRIMARY_DOWNLOAD_URL,
+} from '../config/downloads';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -25,6 +37,11 @@ import {
   Repeat,
   TrendingUp,
   Target,
+  MonitorDown,
+  Zap,
+  HardDrive,
+  Download,
+  WifiOff,
 } from 'lucide-react';
 
 const SHOTS = {
@@ -33,6 +50,31 @@ const SHOTS = {
   analytics: '/screenshots/analytics.png',
   calendar: '/screenshots/calendar.png',
 };
+
+// La version desktop s'exécute sur la machine locale (serveur Express + base
+// SQLite embarqués) et se synchronise avec le cloud quand la connexion revient.
+const DESKTOP_ADVANTAGES = [
+  {
+    icon: Zap,
+    title: 'Ultra rapide',
+    body: 'Aucune attente réseau : le moteur tourne sur votre machine. L’application se lance en une seconde et les pages répondent instantanément.',
+  },
+  {
+    icon: WifiOff,
+    title: 'Fonctionne hors ligne',
+    body: 'Vous consultez, écrivez et analysez vos trades sans connexion. Les données sont enregistrées en local, puis synchronisées dès que vous revenez en ligne.',
+  },
+  {
+    icon: HardDrive,
+    title: 'Vos données chez vous',
+    body: 'Votre journal est stocké dans une base de données locale, sur votre propre appareil. Vos statistiques restent accessibles à tout moment.',
+  },
+  {
+    icon: MonitorDown,
+    title: 'Une vraie application',
+    body: 'Une fenêtre dédiée, son propre moteur embarqué : vous gardez vos outils de trading ouverts dans le navigateur, sans accumuler d’onglets.',
+  },
+];
 
 const FEATURES = [
   {
@@ -98,7 +140,7 @@ const FAQ = [
   },
   {
     q: "L'application est-elle gratuite ?",
-    a: "Le cœur de l'application est accessible après inscription, avec un essai gratuit. Les formules payantes sont détaillées sur la page Tarifs, une fois connecté.",
+    a: "Oui, entièrement pour le moment : toutes les fonctionnalités (journal, track record, analytics, stratégie) sont disponibles sans abonnement.",
   },
   {
     q: 'Mes données sont-elles en sécurité ?',
@@ -132,13 +174,24 @@ export default function Landing() {
             <a href="#captures" className="hover:text-white transition-colors">Captures</a>
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
           </nav>
-          <button
-            type="button"
-            onClick={goLogin}
-            className="h-9 px-4 rounded-lg border border-white/20 text-sm font-medium hover:border-[#00c853]/60 hover:text-[#00e065] transition-colors"
-          >
-            Se connecter
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href={PRIMARY_DOWNLOAD_URL || '#telecharger'}
+              {...(PRIMARY_DOWNLOAD_URL ? { download: true } : {})}
+              title="Télécharger BlackTracker Desktop (Windows)"
+              className="h-9 px-4 rounded-lg text-sm font-medium border border-[#00c853]/40 bg-[#00c853]/10 text-[#00e065] hover:bg-[#00c853]/20 transition-colors flex items-center gap-2"
+            >
+              <Download size={14} />
+              <span className="hidden sm:inline">Télécharger</span>
+            </a>
+            <button
+              type="button"
+              onClick={goLogin}
+              className="h-9 px-4 rounded-lg border border-white/20 text-sm font-medium hover:border-[#00c853]/60 hover:text-[#00e065] transition-colors"
+            >
+              Se connecter
+            </button>
+          </div>
         </div>
       </header>
 
@@ -426,6 +479,100 @@ export default function Landing() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ───────────────── DESKTOP ───────────────── */}
+      <section id="telecharger" className="max-w-6xl mx-auto px-6 py-20 sm:py-24">
+        <p className="font-mono text-[11px] text-[#00e065] uppercase tracking-widest mb-3 text-center">
+          {'// version desktop'}
+        </p>
+        <Reveal>
+          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-center mb-4">
+            BlackTracker, directement sur votre machine.
+          </h2>
+        </Reveal>
+        <Reveal delay={80}>
+          <p className="text-sm sm:text-base text-[#cdd2cd] max-w-2xl mx-auto text-center leading-relaxed mb-12">
+            La même application, en beaucoup plus réactif : téléchargez la version desktop
+            pour un journal et des statistiques qui répondent en instantané, avec vos données
+            en local.
+          </p>
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
+          {DESKTOP_ADVANTAGES.map(({ icon: Icon, title, body }, i) => (
+            <Reveal key={title} delay={i * 100}>
+              <div className="flex gap-4 h-full">
+                <div className="shrink-0 w-10 h-10 rounded-lg bg-[#00c853]/10 border border-[#00c853]/20 flex items-center justify-center">
+                  <Icon size={20} className="text-[#00e065]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1">{title}</h3>
+                  <p className="text-sm text-[#cdd2cd] leading-relaxed">{body}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={120}>
+          {GITHUB_DESKTOP_REPO ? (
+            <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
+              {DESKTOP_DOWNLOADS.map(({ id, label, hint, files }) => (
+              <div
+                key={id}
+                className="rounded-xl border border-white/10 bg-[#000005] p-5 flex flex-col gap-4"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-white flex items-center gap-2">
+                    <MonitorDown size={16} className="text-[#00e065]" />
+                    {label}
+                  </p>
+                  <span className="text-[10px] font-mono text-[#cdd2cd]/50 uppercase tracking-wide">
+                    {hint}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {files.map((f) => (
+                    <a
+                      key={f.name}
+                      href={f.url}
+                      download
+                      className="group flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-[#cdd2cd] hover:text-white hover:border-[#00c853]/40 transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Download size={15} className="text-[#00e065]" />
+                        {f.name}
+                      </span>
+                      <span className="text-[#00e065] opacity-0 group-hover:opacity-100 transition-opacity">
+                        ↓
+                      </span>
+                    </a>
+                  ))}
+                </div>
+                <p className="text-[11px] text-[#cdd2cd]/50">
+                  Version 1.0.0 · mise à jour via le lien ci-dessus.
+                </p>
+              </div>
+              ))}
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto rounded-xl border border-white/10 bg-[#000005] p-8 text-center">
+              <p className="text-sm text-[#cdd2cd] leading-relaxed mb-4">
+                Les installateurs Windows et Linux de la version desktop sont
+                disponibles sur la Release GitHub officielle de
+                BlackTracker. Écrivez-nous pour obtenir le lien d'installation.
+              </p>
+              <a
+                href="mailto:nacanaboelvis7@gmail.com?subject=BlackTracker%20—%20téléchargement%20desktop"
+                className="inline-flex items-center gap-2 text-sm font-medium text-[#00e065] hover:text-white transition-colors"
+              >
+                <Mail size={16} />
+                Demander le lien d'installation
+              </a>
+            </div>
+          )}
+        </Reveal>
       </section>
 
       {/* ───────────────── FAQ ───────────────── */}

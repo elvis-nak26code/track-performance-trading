@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { getMoodMeta } from '../../constants/moods';
 
-function MoodPerformanceChart({ data }) {
+function MoodPerformanceChart({ data, fullscreen = false }) {
   if (!data.length) {
     return (
       <p className="text-text-secondary text-sm">
@@ -17,7 +17,7 @@ function MoodPerformanceChart({ data }) {
   const chartData = data.map((d) => ({ ...d, label: getMoodMeta(d.mood).label }));
 
   return (
-    <div className="h-64">
+    <div className={fullscreen ? 'h-[calc(100vh-5rem)]' : 'h-64'}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
           <CartesianGrid stroke="#252925" strokeDasharray="3 3" vertical={false} />
@@ -59,6 +59,7 @@ MoodPerformanceChart.propTypes = {
   data: PropTypes.arrayOf(
     PropTypes.shape({ mood: PropTypes.string, winRate: PropTypes.number, count: PropTypes.number })
   ).isRequired,
+  fullscreen: PropTypes.bool,
 };
 
 export default memo(MoodPerformanceChart);

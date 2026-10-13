@@ -5,14 +5,14 @@ import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-function WinLossBarChart({ wins, losses }) {
+function WinLossBarChart({ wins, losses, fullscreen = false }) {
   const data = [
     { label: 'Gagnants', count: wins },
     { label: 'Perdants', count: losses },
   ];
 
   return (
-    <div className="h-56">
+    <div className={fullscreen ? 'h-[calc(100vh-5rem)]' : 'h-56'}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
           <CartesianGrid stroke="#252925" strokeDasharray="3 3" vertical={false} />
@@ -51,6 +51,7 @@ function WinLossBarChart({ wins, losses }) {
 WinLossBarChart.propTypes = {
   wins: PropTypes.number.isRequired,
   losses: PropTypes.number.isRequired,
+  fullscreen: PropTypes.bool,
 };
 
 export default memo(WinLossBarChart);

@@ -12,6 +12,16 @@ export function escapeHtml(str = '') {
     .replace(/"/g, '&quot;');
 }
 
+// Interprète une largeur CSS ou un attribut : "200px" -> 200, "100%" / "auto" /
+// vide -> null (pleine largeur). Le historique parseInt('100%') = 100 rétrécissait
+// les images pleine largeur à 100px au rechargement : il faut laisser "null".
+export function parseImageWidth(value = '') {
+  const str = String(value).trim();
+  if (!str || str === 'auto' || str.endsWith('%')) return null;
+  const px = parseInt(str, 10);
+  return Number.isFinite(px) && px > 0 ? px : null;
+}
+
 // Blocs -> HTML pré-rempli de la page éditable.
 export function blocksToHtml(blocks = [], screenshots = []) {
   return blocks
@@ -26,9 +36,7 @@ export function blocksToHtml(blocks = [], screenshots = []) {
 
       const shot = screenshots.find((s) => s.id === block.screenshotId);
       if (!shot) return '';
-      const widthStyle = block.width
-        ? ` style="width:${block.width}px"`
-        : ' style="width:100%"';
+      const widthStyle = block.width ? ` style="width:${block.width}px"` : '';
       return `<p><img data-shot-id="${escapeHtml(block.screenshotId)}" src="${escapeHtml(shot.url)}"${widthStyle}></p>`;
     })
     .join('');
@@ -65,12 +73,11 @@ export function htmlToBlocks(html) {
       imgs.forEach((img) => {
         const screenshotId = img.getAttribute('data-shot-id');
         if (!screenshotId) return;
-        const rawWidth = img.getAttribute('width') || img.style.width;
-        const parsed = rawWidth ? parseInt(rawWidth, 10) : NaN;
+        const parsed = parseImageWidth(img.getAttribute('width') || img.style.width);
         blocks.push({
           type: 'image',
           screenshotId,
-          ...(Number.isFinite(parsed) && parsed > 0 ? { width: parsed } : {}),
+          ...(parsed ? { width: parsed } : {}),
         });
         shotsUsed.add(screenshotId);
       });

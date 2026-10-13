@@ -4,15 +4,12 @@
 import { memo, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { formatDateShort } from '../../utils/dateHelpers';
-import { formatStrategies } from '../../constants/strategies';
 import Badge from '../common/Badge';
 
 const COLUMNS = [
   { key: 'date', label: 'Date' },
   { key: 'symbol', label: 'Symbole' },
   { key: 'direction', label: 'Sens' },
-  { key: 'entryPrice', label: 'Entrée' },
-  { key: 'exitPrice', label: 'Sortie' },
   { key: 'quantity', label: 'Qté' },
   { key: 'r', label: 'R' },
   { key: 'pnl', label: 'P&L' },
@@ -80,11 +77,7 @@ function TradesTable({ trades, onEdit, onDelete }) {
                   {t.direction === 'long' ? 'Long' : 'Short'}
                 </Badge>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-[11px] font-mono">
-                <div>
-                  <p className="text-text-secondary/70">Entrée / Sortie</p>
-                  <p className="text-text-primary">{t.entryPrice} → {t.exitPrice}</p>
-                </div>
+              <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
                 <div>
                   <p className="text-text-secondary/70">R multiple</p>
                   <p className={t.r >= 0 ? 'text-accent' : 'text-danger'}>
@@ -98,12 +91,7 @@ function TradesTable({ trades, onEdit, onDelete }) {
                   </p>
                 </div>
               </div>
-              {t.strategies?.length > 0 && (
-                <p className="text-[10px] text-text-secondary font-mono mt-2 truncate">
-                  {formatStrategies(t.strategies)}
-                </p>
-              )}
-              <div className="flex items-center justify-end gap-4 mt-2 pt-2 border-t border-card-border/40 text-xs">
+              <div className="flex items-center justify-end gap-4 mt-2 pt-2 border-t border-card-border/15 text-xs">
                 <TradeRowActions trade={t} onEdit={onEdit} onDelete={onDelete} />
               </div>
             </div>
@@ -113,9 +101,9 @@ function TradesTable({ trades, onEdit, onDelete }) {
 
       {/* Vue desktop : tableau classique */}
       <div className="overflow-x-auto hidden sm:block">
-        <table className="w-full text-sm font-mono min-w-[900px]">
+        <table className="w-full text-sm font-mono min-w-[640px]">
           <thead>
-            <tr className="text-left text-text-secondary text-[11px] uppercase tracking-wide border-b border-card-border/40">
+            <tr className="text-left text-text-secondary text-[11px] uppercase tracking-wide border-b border-card-border/25">
               {COLUMNS.map((col) => (
                 <th
                   key={col.key}
@@ -125,13 +113,12 @@ function TradesTable({ trades, onEdit, onDelete }) {
                   {col.label} {sortKey === col.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
                 </th>
               ))}
-              <th className="py-2 pr-4 font-normal whitespace-nowrap">Approche(s)</th>
               <th className="py-2 pr-4 font-normal text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
             {sorted.map((t) => (
-              <tr key={t.id} className="border-b border-card-border/30 last:border-0 hover:bg-white/[0.02]">
+              <tr key={t.id} className="border-b border-card-border/15 last:border-0 hover:bg-white/[0.02]">
                 <td className="py-2 pr-4 text-text-secondary whitespace-nowrap">{formatDateShort(t.date)}</td>
                 <td className="py-2 pr-4 text-text-primary">{t.symbol}</td>
                 <td className="py-2 pr-4">
@@ -139,8 +126,6 @@ function TradesTable({ trades, onEdit, onDelete }) {
                     {t.direction === 'long' ? 'Long' : 'Short'}
                   </Badge>
                 </td>
-                <td className="py-2 pr-4">{t.entryPrice}</td>
-                <td className="py-2 pr-4">{t.exitPrice}</td>
                 <td className="py-2 pr-4">{t.quantity}</td>
                 <td className={`py-2 pr-4 ${t.r >= 0 ? 'text-accent' : 'text-danger'}`}>
                   {t.r >= 0 ? `+${t.r}` : t.r}R
@@ -148,9 +133,6 @@ function TradesTable({ trades, onEdit, onDelete }) {
                 <td className={`py-2 pr-4 ${t.pnl >= 0 ? 'text-accent' : 'text-danger'}`}>
                   {t.pnl >= 0 ? '+' : ''}
                   {t.pnl.toFixed(2)} $
-                </td>
-                <td className="py-2 pr-4 text-text-secondary text-xs whitespace-nowrap">
-                  {formatStrategies(t.strategies)}
                 </td>
                 <td className="py-2 pr-4 text-right whitespace-nowrap">
                   <TradeRowActions trade={t} onEdit={onEdit} onDelete={onDelete} />

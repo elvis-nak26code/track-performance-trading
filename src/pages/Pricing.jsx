@@ -1,6 +1,11 @@
 // Page Tarifs (/tarifs) : essai gratuit, forfait mensuel, forfait annuel.
 // Toutes les fonctionnalités de la plateforme sont incluses dans chaque
 // forfait — seules la durée et la formule de facturation changent.
+//
+// Clic sur « S'abonner » (forfait payant) : on atterit DIRECTEMENT sur la page
+// de paiement Genius Pay, sans formulaire intermédiaire — le client y choisit
+// son opérateur (Orange Money / MTN / Moov / carte), voie recommandée pour le
+// Burkina Faso où la détection automatique du numéro ne fonctionne pas.
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -9,6 +14,8 @@ import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
 import { PLANS, formatXof } from '../constants/plans';
 import { createCheckout } from '../services/api/subscriptionApi';
+
+const IS_DESKTOP = import.meta.env.VITE_DESKTOP === 'true';
 
 const ALL_FEATURES = [
   'Tableau de bord & KPIs en temps réel',
@@ -23,8 +30,8 @@ const ALL_FEATURES = [
 
 export default function Pricing() {
   const { user, updatePlan, refreshUser } = useAuth();
+  const [payingPlanId, setPayingPlanId] = useState(null);
   const [payError, setPayError] = useState(null);
-  const [isPaying, setIsPaying] = useState(false);
   const [searchParams] = useSearchParams();
 
   // Retour du checkout Genius Pay (?resultat=succes) : le backend a activé le
@@ -34,21 +41,28 @@ export default function Pricing() {
     if (result === 'succes') refreshUser();
   }, [searchParams, refreshUser]);
 
-  async function handleChoose(planId) {
+  // Essai gratuit : activation directe. Forfait payant : on envoie le client
+  // DIRECTEMENT sur la page de paiement Genius Pay hébergée (aucun moyen ni
+  // numéro saisi dans l'app) : c'est là qu'il choisit l'opérateur (Orange
+  // Money / MTN / Moov / Wave / carte) et saisit son numéro en toute sécurité.
+  // Voie recommandée pour le Burkina Faso (+226).
+  async function handleSubscribe(planId) {
     setPayError(null);
-    // Essai gratuit : activation directe (pas de paiement)
     if (planId === 'essai') {
       await updatePlan(planId);
       return;
     }
-    // Forfait payant : initie le checkout via Genius Pay
     try {
-      setIsPaying(true);
+      setPayingPlanId(planId);
       const { payUrl } = await createCheckout(planId);
       if (payUrl) {
-        window.location.href = payUrl;
-        // Ne pas setIsPaying(false) : on quitte la page
-        return;
+        if (IS_DESKTOP) {
+          // L'app de bureau ouvre la page externe dans le navigateur système,
+          // jamais dans la fenêtre Electron.
+          window.open(payUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          window.location.href = payUrl;
+        }
       }
     } catch (err) {
       if (err.code === 'PAYMENT_NOT_CONFIGURED') {
@@ -57,7 +71,7 @@ export default function Pricing() {
         setPayError(err.message || 'Une erreur est survenue lors de l\'initiation du paiement.');
       }
     } finally {
-      setIsPaying(false);
+      setPayingPlanId(null);
     }
   }
 
@@ -72,6 +86,7 @@ export default function Pricing() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {PLANS.map((plan) => {
           const isCurrent = user?.plan === plan.id;
+          const isPaying = payingPlanId === plan.id;
           return (
             <div
               key={plan.id}
@@ -118,9 +133,9 @@ export default function Pricing() {
 
               <Button
                 variant={plan.highlight ? 'primary' : 'secondary'}
-                disabled={isCurrent || isPaying}
-                loading={isPaying && !isCurrent}
-                onClick={() => handleChoose(plan.id)}
+                disabled={isCurrent || Boolean(payingPlanId)}
+                loading={isPaying}
+                onClick={() => handleSubscribe(plan.id)}
                 className="w-full"
               >
                 {isCurrent ? 'Forfait actuel' : plan.id === 'essai' ? "Démarrer l'essai" : 'S\'abonner'}
@@ -131,10 +146,10 @@ export default function Pricing() {
       </div>
 
       {payError && (
-          <div className="col-span-full mb-4 rounded-lg border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">
-            {payError}
-          </div>
-        )}
+        <div className="mb-4 rounded-lg border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">
+          {payError}
+        </div>
+      )}
 
       <p className="text-xs text-text-secondary">
         Taux de conversion FCFA indicatif (≈ 600 FCFA pour 1 $), fourni à titre d&apos;ordre de grandeur — le taux
