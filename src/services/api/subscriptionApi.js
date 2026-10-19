@@ -1,5 +1,5 @@
 // Couche d'abstraction pour l'abonnement (statut + paiement).
-// - Mode mock (VITE_USE_MOCK_DATA !== 'false') : le statut est calculé depuis
+// - Mode mock (VITE_USE_MOCK_DATA === 'true') : le statut est calculé depuis
 //   la session locale et le checkout payant répond PAYMENT_NOT_CONFIGURED
 //   (identique au backend sans clés Genius Pay), pour pouvoir tester toute la
 //   mécanique de verrouillage sans backend.
@@ -7,7 +7,7 @@
 import { getStoredSession, getToken, updateStoredSession, notifyUnauthorized, notifyPlanExpired } from '../../utils/authToken';
 import { computeDaysRemaining } from '../../constants/plans';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 10000;
 

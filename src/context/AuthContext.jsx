@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { apiRegister, apiLogin, apiGoogleLogin, apiChoosePlan } from '../services/api/authApi';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 const STORAGE_KEY = import.meta.env.VITE_AUTH_TOKEN_STORAGE_KEY || 'journal_trading_token';
 const USERS_STORAGE_KEY = `${STORAGE_KEY}_users`; // mode mock uniquement
 

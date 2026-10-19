@@ -9,7 +9,7 @@
 import mockMarkets from '../mockData/markets.json';
 import { getToken, notifyUnauthorized, notifyPlanExpired } from '../../utils/authToken';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 10000;
 const CUSTOM_MARKETS_STORAGE_KEY = 'journal_trading_custom_markets';

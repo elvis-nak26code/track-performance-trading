@@ -10,7 +10,7 @@ import { computeDaysRemaining, isPlanExpired as localIsExpired, getPlan } from '
 import { getSubscriptionStatus } from '../services/api/subscriptionApi';
 import SubscriptionModal from '../components/subscription/SubscriptionModal';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA !== 'false';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
 /*
  * DÉSACTIVATION TEMPORAIRE DES TARIFS : tant que FREE_ACCESS=true, la
