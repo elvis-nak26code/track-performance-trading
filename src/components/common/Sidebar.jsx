@@ -45,8 +45,6 @@ const LINKS = [
   { to: '/strategies', label: 'Stratégie', icon: Crosshair },
   { to: '/marches', label: 'Marchés', icon: Globe2 },
   { to: '/outils', label: "Outils d'analyse", icon: GraduationCap },
-  // Lien Tarifs en commentaire : accès gratuit (voir PlanContext FREE_ACCESS).
-  // { to: '/tarifs', label: 'Tarifs', icon: Tag },
 ];
 
 export default function Sidebar({ collapsed, onToggleCollapsed }) {

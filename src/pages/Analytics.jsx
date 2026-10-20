@@ -9,7 +9,6 @@ import PageHeader from '../components/common/PageHeader';
 import Card from '../components/common/Card';
 import KpiCard from '../components/common/KpiCard';
 import PeriodFilter from '../components/common/PeriodFilter';
-// import PlanBlock from '../components/subscription/PlanBlock'; // Tarifs en commentaire
 import { LoadingState, EmptyState } from '../components/common/LoadingState';
 import WinRateDonut from '../components/analytics/WinRateDonut';
 import WinLossBarChart from '../components/analytics/WinLossBarChart';
@@ -84,10 +83,6 @@ export default function Analytics() {
     totalR: computeTotalR(rangeTrades),
     totalPnlPeriod: rangeTrades.reduce((s, t) => s + t.pnl, 0),
   }), [rangeTrades]);
-
-  // Forfait expiré : la page entière (statistiques) était verrouillée.
-  // Désactivé en accès gratuit (PlanContext FREE_ACCESS).
-  // if (isExpired) { … }
 
   if (tradesLoading || entriesLoading) return <LoadingState label="Chargement des analytics…" />;
 

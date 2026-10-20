@@ -15,7 +15,6 @@ import { MarketsProvider } from './context/MarketsContext';
 import { StrategyProvider } from './context/StrategyContext';
 import { useAuth } from './hooks/useAuth';
 import { useSettings } from './hooks/useSettings';
-import { PlanProvider } from './context/PlanContext';
 import { LoadingState } from './components/common/LoadingState';
 import Sidebar from './components/common/Sidebar';
 import Login from './pages/Login';
@@ -30,7 +29,6 @@ import Calendar from './pages/Calendar';
 import Markets from './pages/Markets';
 import Tools from './pages/Tools';
 import Strategies from './pages/Strategies';
-// import Pricing from './pages/Pricing'; // Tarifs en commentaire (accès gratuit)
 import Profile from './pages/Profile';
 
 const AUTH_ENABLED = import.meta.env.VITE_AUTH_ENABLED === 'true';
@@ -126,7 +124,6 @@ function AuthenticatedApp() {
         <JournalProvider>
           <MarketsProvider>
             <StrategyProvider>
-              <PlanProvider>
               <div className="min-h-screen bg-bg text-text-primary font-sans">
             {/* Le menu latéral est en position fixe (voir Sidebar.jsx) : on réserve
                 l'espace correspondant via une marge à gauche du contenu principal,
@@ -154,8 +151,6 @@ function AuthenticatedApp() {
                     <Route path="/marches" element={<Markets />} />
                     <Route path="/outils" element={<Tools />} />
                     <Route path="/strategies" element={<Strategies />} />
-                    {/* Route /tarifs en commentaire : accès gratuit (voir PlanContext FREE_ACCESS) —
-                        <Route path="/tarifs" element={<Pricing />} /> */}
                     <Route path="/profil" element={<Profile />} />
                     <Route path="/connexion" element={<Navigate to="/" replace />} />
                     <Route path="/mot-de-passe-oublie" element={<Navigate to="/" replace />} />
@@ -165,7 +160,6 @@ function AuthenticatedApp() {
               </div>
             </main>
           </div>
-            </PlanProvider>
               </StrategyProvider>
             </MarketsProvider>
         </JournalProvider>

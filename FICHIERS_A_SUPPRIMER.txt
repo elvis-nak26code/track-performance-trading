@@ -1,0 +1,12 @@
+Supprime ces fichiers de ton projet frontend (données de simulation) :
+
+src/services/mockData/trades.json
+src/services/mockData/journalEntries.json
+src/services/mockData/markets.json
+(puis le dossier src/services/mockData/ lui-même)
+
+Ensuite :
+  npm install        (retire geniuspay-react et jwt-decode, devenus inutiles)
+
+Dans ton fichier .env (non fourni, il reste chez toi) :
+  supprime la ligne VITE_USE_MOCK_DATA=... et son commentaire (elle n'est plus lue).

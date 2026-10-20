@@ -140,7 +140,7 @@ const FAQ = [
   },
   {
     q: "L'application est-elle gratuite ?",
-    a: "Oui, entièrement pour le moment : toutes les fonctionnalités (journal, track record, analytics, stratégie) sont disponibles sans abonnement.",
+    a: "Oui, le logiciel est entièrement gratuit : toutes les fonctionnalités (journal, track record, analytics, stratégie) sont disponibles sans abonnement et sans limite de durée.",
   },
   {
     q: 'Mes données sont-elles en sécurité ?',

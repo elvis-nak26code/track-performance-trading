@@ -7,7 +7,6 @@ import { Calendar, NotebookTabs, Smile } from 'lucide-react';
 import { useJournalEntries } from '../hooks/useJournalEntries';
 import { useTrades } from '../hooks/useTrades';
 import { useMarkets } from '../hooks/useMarkets';
-import { usePlan } from '../context/PlanContext';
 import PageHeader from '../components/common/PageHeader';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -46,7 +45,6 @@ export default function JournalEntryForm() {
   const { entries, addEntry, editEntry } = useJournalEntries();
   const { trades } = useTrades();
   const { markets } = useMarkets();
-  const { isExpired, requirePlan } = usePlan();
   const [form, setForm] = useState(createEmptyEntry);
   const [ready, setReady] = useState(() => !isEditing);
   const [notFound, setNotFound] = useState(false);
@@ -73,16 +71,6 @@ export default function JournalEntryForm() {
       setNotFound(true);
     }
   }, [isEditing, id, entries]);
-
-  // Accès direct à /journal/nouveau par un utilisateur dont le forfait est
-  // terminé : on l'informe (modal) et on le ramène sur la liste du journal
-  // (qui reste lisible, seule la création est verrouillée).
-  useEffect(() => {
-    if (isExpired && !isEditing) {
-      requirePlan('créer une nouvelle entrée de journal');
-      navigate('/journal', { replace: true });
-    }
-  }, [isExpired, isEditing, requirePlan, navigate]);
 
   // Petite bascule : prêt directement en création, après chargement en édition.
   useEffect(() => {

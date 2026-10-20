@@ -14,7 +14,6 @@ import RecentTradesTable from '../components/dashboard/RecentTradesTable';
 import MiniCalendarHeatmap from '../components/dashboard/MiniCalendarHeatmap';
 import PositionCalculator from '../components/tools/PositionCalculator';
 import PreTradeChecklist from '../components/dashboard/PreTradeChecklist';
-import { usePlan } from '../context/PlanContext';
 import { useStrategy } from '../hooks/useStrategy';
 import TradeForm from '../components/track-record/TradeForm';
 import {
@@ -29,7 +28,6 @@ export default function Dashboard() {
   const { trades, isLoading, addTrade } = useTrades();
   const [showTradeModal, setShowTradeModal] = useState(false);
   const navigate = useNavigate();
-  const { isExpired, requirePlan } = usePlan();
   const { activeStrategy } = useStrategy();
 
   const sortedTrades = useMemo(
@@ -68,18 +66,14 @@ export default function Dashboard() {
             <Button
               variant="primary"
               className="flex-1 sm:flex-none justify-center"
-              onClick={() => {
-                if (requirePlan('créer un nouveau trade')) setShowTradeModal(true);
-              }}
+              onClick={() => setShowTradeModal(true)}
             >
               + Nouveau trade
             </Button>
             <Button
               variant="secondary"
               className="flex-1 sm:flex-none justify-center"
-              onClick={() => {
-                if (requirePlan('créer une nouvelle entrée de journal')) navigate('/journal/nouveau');
-              }}
+              onClick={() => navigate('/journal/nouveau')}
             >
               + Nouvelle entrée journal
             </Button>

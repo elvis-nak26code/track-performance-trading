@@ -1,8 +1,7 @@
-// Couche d'abstraction pour l'authentification contre le VRAI backend
-// (Express). Utilisée par AuthContext.jsx uniquement quand
-// VITE_USE_MOCK_DATA=false — en mode mock, AuthContext continue de gérer
-// les comptes en localStorage comme avant, sans passer par ce fichier.
-import { getToken, notifyUnauthorized, notifyPlanExpired } from '../../utils/authToken';
+// Couche d'accès à l'authentification et au profil (API Express : le cloud en
+// version web, le serveur local en version desktop). Utilisée par
+// AuthContext.jsx et SettingsContext.jsx.
+import { getToken, notifyUnauthorized } from '../../utils/authToken';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 10000;
@@ -27,9 +26,6 @@ async function request(path, options = {}) {
     if (response.status === 401) {
       notifyUnauthorized();
     }
-    if (response.status === 403 && json?.code === 'PLAN_EXPIRED') {
-      notifyPlanExpired();
-    }
     if (!response.ok) {
       throw new Error(json?.message || `Erreur API (${response.status}) sur ${path}`);
     }
@@ -52,8 +48,8 @@ export function apiGoogleLogin(credential) {
   return request('/auth/google', { method: 'POST', body: JSON.stringify({ credential }) });
 }
 
-// Mot de passe oublié : demande un code de réinitialisation (data.code est
-// renvoyé par l'API en attendant qu'un SMTP soit configuré).
+// Mot de passe oublié : demande un code de réinitialisation, envoyé par e-mail
+// (data.code n'est renvoyé que par une API de développement sans SMTP).
 export function apiForgotPassword(email) {
   return request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
 }
@@ -71,8 +67,4 @@ export function apiFetchMe() {
 
 export function apiUpdateSettings(settings) {
   return request('/users/me/settings', { method: 'PUT', body: JSON.stringify(settings) });
-}
-
-export function apiChoosePlan(planId) {
-  return request('/subscriptions/choose', { method: 'POST', body: JSON.stringify({ planId }) });
 }

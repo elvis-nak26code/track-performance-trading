@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useJournalEntries } from '../hooks/useJournalEntries';
 import { useTrades } from '../hooks/useTrades';
-import { usePlan } from '../context/PlanContext';
 import PageHeader from '../components/common/PageHeader';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -18,7 +17,6 @@ import { getMoodMeta } from '../constants/moods';
 function JournalList() {
   const { entries, isLoading, removeEntry } = useJournalEntries();
   const navigate = useNavigate();
-  const { requirePlan } = usePlan();
   const [period, setPeriod] = useState({ mode: 'all' });
 
   const availableMonths = useMemo(() => listAvailableMonths(entries), [entries]);
@@ -39,9 +37,7 @@ function JournalList() {
         actions={
           <Button
             variant="primary"
-            onClick={() => {
-              if (requirePlan('créer une nouvelle entrée de journal')) navigate('/journal/nouveau');
-            }}
+            onClick={() => navigate('/journal/nouveau')}
           >
             + Nouvelle entrée
           </Button>
